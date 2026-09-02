@@ -1,1 +1,103 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oldenburg&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Cinzel', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-number: 'Oldenburg', serif;
+  --bg-main: #FAF7F2;
+  --ink-main: #2B2825;
+}
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-main);
+    color: var(--ink-main);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    }
+
+  /* Classical Cinzel font reserved strictly for headings */
+   h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    letter-spacing: 0.04em;
+  }
+}
+
+/* Explicit Header Utility */
+.font-gyre-title {
+  font-family: var(--font-serif);
+  letter-spacing: 0.04em;
+}
+
+/* Roulette & History Tile Numbers Utility */
+.tile-number {
+  font-family: var(--font-number);
+}
+
+/* Base button interaction styles (enforces sans-serif) */
+.gyre-btn {
+  font-family: var(--font-sans) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gyre-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.gyre-btn:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.gyre-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Numeric bet input styling */
+.gyre-num::-webkit-outer-spin-button,
+.gyre-num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.gyre-num {
+  -moz-appearance: textfield;
+  font-family: var(--font-mono);
+}
+
+/* Win and Error Flash Animations */
+@keyframes flashWin {
+  0% {
+    background-color: rgba(211, 161, 84, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes flashError {
+  0% {
+    background-color: rgba(241, 143, 142, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.flash-win {
+  animation: flashWin 0.55s ease;
+}
+
+.flash-error {
+  animation: flashError 0.55s ease;
+}

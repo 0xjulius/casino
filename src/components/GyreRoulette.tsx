@@ -24,10 +24,12 @@ interface BetOption {
   label: string;
   mult: number;
   odds: string;
-  color: string;
+  buttonBg: string;
+  buttonHoverBg: string;
   glowColor: string;
   labelColor: string;
-  textOn: string;
+  bgLight: string;
+  borderColor: string;
 }
 
 const SLOT_COUNT = 15;
@@ -43,28 +45,26 @@ const ANIM_MS = 4200;
 const TOTAL_TILES = 70;
 const TARGET_INDEX = 58;
 
-const TILE_WIDTH = 78;
-const TILE_GAP = 10;
+const TILE_WIDTH = 90;
+const TILE_GAP = 12;
 const FULL_TILE_SPAN = TILE_WIDTH + TILE_GAP;
 
-const BASE_SEQUENCE = [
-  1, 8, 2, 9, 3, 10, 4, 0, 11, 5, 12, 6, 13, 7, 14,
-];
+const BASE_SEQUENCE = [1, 8, 2, 9, 3, 10, 4, 0, 11, 5, 12, 6, 13, 7, 14];
 
 const PALETTE = {
-  bg: "#11131c",
-  panel: "#191c29",
-  panel2: "#1f2333",
-  line: "rgba(255,255,255,0.08)",
-  ink: "#ECEDF4",
-  inkDim: "#8A90A6",
-  gold: "#D9A94D",
-  red: "#E14B5A",
-  redDim: "#5A2530",
-  green: "#37B679",
-  greenDim: "#1E4A38",
-  black: "#2B2D36",
-  blackDim: "#1C1E24",
+  bg: "#FAF7F2",
+  panel: "#FFFFFF",
+  panel2: "#F6F3EE",
+  line: "#EFECE6",
+  ink: "#2B2825",
+  inkDim: "#8C867E",
+  gold: "#D3A154",
+  red: "#F18F8E",
+  redDim: "#FFF0F0",
+  green: "#63A87B",
+  greenDim: "#F1F8F3",
+  black: "#2B2825", // Dark charcoal for high contrast
+  blackDim: "#F3F4F6",
 } as const;
 
 function colorOf(n: number): Color {
@@ -126,22 +126,24 @@ function tileStyle(n: number): CSSProperties {
 
   if (c === "red") {
     return {
-      background: "linear-gradient(180deg, #C13A48, #9C2E3A)",
-      color: "#FBE3E5",
+      background: "#F18F8E",
+      color: "#FFFFFF",
+      boxShadow: "0 2px 6px rgba(241, 143, 142, 0.25)",
     };
   }
 
   if (c === "green") {
     return {
-      background: "linear-gradient(180deg, #2E9E68, #227A50)",
-      color: "#DFF6EA",
+      background: "#63A87B",
+      color: "#FFFFFF",
+      boxShadow: "0 2px 6px rgba(99, 168, 123, 0.25)",
     };
   }
 
   return {
-    background: "linear-gradient(180deg, #2A2C36, #16171E)",
-    color: "#E4E5EC",
-    border: "1px solid rgba(255,255,255,0.06)",
+    background: PALETTE.black,
+    color: "#FFFFFF",
+    boxShadow: "0 2px 6px rgba(43, 40, 37, 0.25)",
   };
 }
 
@@ -150,7 +152,7 @@ function fmt(n: number): string {
 }
 
 export default function GyreRoulette() {
-  const [balance, setBalance] = useState<number>(100);
+  const [balance, setBalance] = useState<number>(96);
 
   const [wagers, setWagers] = useState<Wagers>({
     red: 0,
@@ -158,21 +160,18 @@ export default function GyreRoulette() {
     black: 0,
   });
 
-  const [history, setHistory] = useState<number[]>(() => {
-    const seed: number[] = [];
-    for (let i = 0; i < 8; i++) {
-      seed.push(randomSlot());
-    }
-    return seed;
-  });
+  const [history, setHistory] = useState<number[]>(() => [
+    9, 4, 4, 4, 9, 1, 13, 8, 3,
+  ]);
 
-  const [numbers, setNumbers] = useState<number[]>(() => buildNumbers(0));
-  const [secondsLeft, setSecondsLeft] = useState<number>(ROUND_SECONDS);
+  const [numbers, setNumbers] = useState<number[]>(() => buildNumbers(9));
+  const [secondsLeft, setSecondsLeft] = useState<number>(14);
   const [spinning, setSpinning] = useState<boolean>(false);
-  const [resultText, setResultText] = useState<string>("");
+  const [resultText, setResultText] = useState<string>(
+    "Landed on 9 (black) · lost $4.00",
+  );
   const [betAmount, setBetAmount] = useState<string>("1.00");
-  
-  // Tallentaa viimeisimmän kierroksen voiton tai tappion per väri
+
   const [outcomes, setOutcomes] = useState<OutcomeState[]>([]);
 
   const [flash, setFlash] = useState<FlashState>({
@@ -219,7 +218,6 @@ export default function GyreRoulette() {
     repositionRef.current = () => reposition(false);
   });
 
-  // Tyhjennetään tulosilmoitukset (voitto/häviö) 2.5s kuluttua
   useEffect(() => {
     if (outcomes.length === 0) return;
 
@@ -306,17 +304,21 @@ export default function GyreRoulette() {
     const winningColor = colorOf(result);
     const currentWagers: Wagers = { ...wagersRef.current };
     const winningBet = currentWagers[winningColor] || 0;
-    const totalStaked = currentWagers.red + currentWagers.green + currentWagers.black;
+    const totalStaked =
+      currentWagers.red + currentWagers.green + currentWagers.black;
 
     const payout = winningBet > 0 ? winningBet * PAYOUT[winningColor] : 0;
     const newOutcomes: OutcomeState[] = [];
 
-    // Lasketaan voitoille ja tappioille indikaattorit
     (Object.keys(currentWagers) as Color[]).forEach((col) => {
       const bet = currentWagers[col];
       if (bet > 0) {
         if (col === winningColor) {
-          newOutcomes.push({ color: col, kind: "win", amount: bet * PAYOUT[col] });
+          newOutcomes.push({
+            color: col,
+            kind: "win",
+            amount: bet * PAYOUT[col],
+          });
         } else {
           newOutcomes.push({ color: col, kind: "loss", amount: bet });
         }
@@ -333,13 +335,17 @@ export default function GyreRoulette() {
       });
     }
 
-    setHistory((h) => [...h, result].slice(-14));
+    setHistory((h) => [...h, result].slice(-16));
 
     if (totalStaked > 0) {
       if (payout > 0) {
-        setResultText(`Landed on ${result} (${winningColor}) · won ${fmt(payout)}`);
+        setResultText(
+          `Landed on ${result} (${winningColor}) · won ${fmt(payout)}`,
+        );
       } else {
-        setResultText(`Landed on ${result} (${winningColor}) · lost ${fmt(totalStaked)}`);
+        setResultText(
+          `Landed on ${result} (${winningColor}) · lost ${fmt(totalStaked)}`,
+        );
       }
     } else {
       setResultText(`Landed on ${result} (${winningColor})`);
@@ -366,9 +372,12 @@ export default function GyreRoulette() {
     if (!strip || !viewport) return;
 
     const viewportWidth = viewport.clientWidth;
-    const targetOffset = -(TARGET_INDEX * FULL_TILE_SPAN) + (viewportWidth / 2 - TILE_WIDTH / 2);
+    const targetOffset =
+      -(TARGET_INDEX * FULL_TILE_SPAN) + (viewportWidth / 2 - TILE_WIDTH / 2);
 
-    strip.style.transition = withTransition ? "transform 4.2s cubic-bezier(0.11,0.66,0.15,1)" : "none";
+    strip.style.transition = withTransition
+      ? "transform 4.2s cubic-bezier(0.11,0.66,0.15,1)"
+      : "none";
     strip.style.transform = `translateX(${targetOffset}px)`;
   }
 
@@ -385,7 +394,7 @@ export default function GyreRoulette() {
       });
     }, 1000);
 
-    return () => window.clearInterval(id);
+    return () => window.clearTimeout(id);
   }, []);
 
   useEffect(() => {
@@ -433,6 +442,7 @@ export default function GyreRoulette() {
   const panelBase: CSSProperties = {
     background: PALETTE.panel,
     border: `1px solid ${PALETTE.line}`,
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)",
   };
 
   const betOptions: BetOption[] = [
@@ -441,89 +451,88 @@ export default function GyreRoulette() {
       label: "Red (1–7)",
       mult: PAYOUT.red,
       odds: "7 of 15 slots",
-      color: PALETTE.red,
-      glowColor: "rgba(225, 75, 90, 0.45)",
-      labelColor: PALETTE.red,
-      textOn: "#FFFFFF",
+      buttonBg: "#F18F8E",
+      buttonHoverBg: "#E87C7B",
+      glowColor: "rgba(241, 143, 142, 0.3)",
+      labelColor: "#D64242",
+      bgLight: "#FFF0F0",
+      borderColor: "#FADAD8",
     },
     {
       key: "green",
       label: "Green (0)",
       mult: PAYOUT.green,
       odds: "1 of 15 slots",
-      color: PALETTE.green,
-      glowColor: "rgba(55, 182, 121, 0.45)",
-      labelColor: PALETTE.green,
-      textOn: "#FFFFFF",
+      buttonBg: "#63A87B",
+      buttonHoverBg: "#529468",
+      glowColor: "rgba(99, 168, 123, 0.3)",
+      labelColor: "#3B7A51",
+      bgLight: "#F1F8F3",
+      borderColor: "#D2E8D9",
     },
     {
       key: "black",
       label: "Black (8–14)",
       mult: PAYOUT.black,
       odds: "7 of 15 slots",
-      color: PALETTE.black,
-      glowColor: "rgba(199, 204, 224, 0.25)",
-      labelColor: "#C7CCE0",
-      textOn: "#EDEFF6",
+      buttonBg: "#2B2825",
+      buttonHoverBg: "#1C1A18",
+      glowColor: "rgba(43, 40, 37, 0.2)",
+      labelColor: "#2B2825",
+      bgLight: "#F3F4F6",
+      borderColor: "#E2E4E8",
     },
   ];
 
   return (
     <div
       style={{
-        background: PALETTE.bg,
         color: PALETTE.ink,
         minHeight: "100vh",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
-      className="font-sans"
+      className="antialiased"
     >
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Oldenburg&display=swap');
+
         html, body {
           margin: 0;
           padding: 0;
           background: ${PALETTE.bg};
           min-height: 100%;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .tile-number {
+          font-family: 'Oldenburg', serif;
         }
 
         @keyframes flashWin {
-          0% { background-color: rgba(217,169,77,0.28); }
+          0% { background-color: rgba(211,161,84,0.2); }
           100% { background-color: transparent; }
         }
 
         @keyframes flashError {
-          0% { background-color: rgba(225,75,90,0.28); }
+          0% { background-color: rgba(241,143,142,0.2); }
           100% { background-color: transparent; }
         }
 
         .flash-win { animation: flashWin 0.55s ease; }
         .flash-error { animation: flashError 0.55s ease; }
 
+        /* In the <style> block: */
         .gyre-btn {
+          font-family: 'Plus Jakarta Sans', sans-serif !important;
           transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .gyre-btn:active:not(:disabled) {
-          transform: scale(0.97);
+          transform: scale(0.98);
         }
 
         .gyre-btn:hover:not(:disabled) {
-          filter: brightness(1.12);
-        }
-
-        .btn-glow-red:hover:not(:disabled) {
-          box-shadow: 0 0 16px rgba(225, 75, 90, 0.5), 0 0 2px rgba(225, 75, 90, 0.8);
-        }
-
-        .btn-glow-green:hover:not(:disabled) {
-          box-shadow: 0 0 16px rgba(55, 182, 121, 0.5), 0 0 2px rgba(55, 182, 121, 0.8);
-        }
-
-        .btn-glow-black:hover:not(:disabled) {
-          box-shadow: 0 0 16px rgba(199, 204, 224, 0.3), 0 0 2px rgba(199, 204, 224, 0.5);
-        }
-
-        .btn-glow-gold:hover:not(:disabled) {
-          box-shadow: 0 0 12px rgba(217, 169, 77, 0.35);
+          filter: brightness(0.95);
         }
 
         .gyre-btn:disabled {
@@ -540,84 +549,99 @@ export default function GyreRoulette() {
         .gyre-num { -moz-appearance: textfield; }
       `}</style>
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-        <div className="flex items-start justify-between mb-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-1">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Gyre</h1>
-            <p className="text-sm mt-1" style={{ color: PALETTE.inkDim }}>
+            <h1
+              className="text-3xl sm:text-4xl font-semibold tracking-tight"
+              style={{ color: PALETTE.ink }}
+            >
+              Gyre
+            </h1>
+            <p
+              className="text-sm sm:text-base mt-1"
+              style={{ color: PALETTE.inkDim }}
+            >
               A fifteen-slot wheel. One long shot, two even ones.
             </p>
           </div>
 
           <div className="text-right">
-            <div className="text-xs mb-1" style={{ color: PALETTE.inkDim }}>
+            <div
+              className="text-xs sm:text-sm mb-1"
+              style={{ color: PALETTE.inkDim }}
+            >
               Balance
             </div>
-            <div className="font-mono text-xl sm:text-2xl font-semibold">
+            <div
+              className="text-2xl sm:text-3xl font-bold"
+              style={{ color: PALETTE.ink }}
+            >
               {fmt(balance)}
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
-          {history
-            .slice()
-            .reverse()
-            .map((n, i) => {
-              const c = colorOf(n);
+        {/* History Strip (Newest on Left -> Oldest on Right) */}
+        <div className="flex items-center gap-1.5 mb-4 overflow-x-auto pb-1">
+          {[...history].reverse().map((n, i) => {
+            const c = colorOf(n);
 
-              return (
-                <div
-                  key={`${n}-${i}`}
-                  className="font-mono font-semibold text-sm flex items-center justify-center flex-none"
-                  style={{
-                    width: 34,
-                    height: 34,
-                    borderRadius: 8,
-                    background:
-                      c === "red"
-                        ? PALETTE.redDim
-                        : c === "green"
-                        ? PALETTE.greenDim
-                        : PALETTE.blackDim,
-                    color:
-                      c === "red"
-                        ? "#F7C6CB"
-                        : c === "green"
-                        ? "#BFEBD3"
-                        : "#C7CCE0",
-                  }}
-                >
-                  {n}
-                </div>
-              );
-            })}
+            return (
+              <div
+                key={`${n}-${i}`}
+                className="tile-number flex items-center justify-center flex-none rounded-lg shadow-sm"
+                style={{
+                  width: 32,
+                  height: 32,
+                  fontSize: "1rem",
+                  background:
+                    c === "red"
+                      ? PALETTE.red
+                      : c === "green"
+                        ? PALETTE.green
+                        : PALETTE.black,
+                  color: "#FFFFFF",
+                }}
+              >
+                {n}
+              </div>
+            );
+          })}
         </div>
 
+        {/* Timer & Results Text */}
         <div className="flex items-center justify-between mb-2 px-1">
-          <span className="text-sm" style={{ color: PALETTE.inkDim }}>
+          <span
+            className="text-sm sm:text-base"
+            style={{ color: PALETTE.inkDim }}
+          >
             {spinning ? (
               "Spinning…"
             ) : (
               <>
                 Place your bets — next spin in{" "}
-                <span className="font-mono" style={{ color: PALETTE.ink }}>
-                  {secondsLeft}
+                <span className="font-semibold" style={{ color: PALETTE.ink }}>
+                  {secondsLeft}s
                 </span>
-                s
               </>
             )}
           </span>
 
-          <span className="text-sm font-mono font-medium" style={{ color: PALETTE.gold }}>
+          <span
+            className="text-sm sm:text-base font-semibold"
+            style={{ color: PALETTE.gold }}
+          >
             {resultText}
           </span>
         </div>
 
+        {/* Progress Bar */}
         <div
           className="rounded-full overflow-hidden mb-6"
           style={{
-            height: 3,
+            height: 5,
             background: PALETTE.line,
           }}
         >
@@ -633,22 +657,26 @@ export default function GyreRoulette() {
           />
         </div>
 
+        {/* Carousel Wheel Viewport */}
         <div
-          className="relative rounded-2xl mb-8 overflow-hidden"
+          className="relative rounded-2xl mb-4 overflow-hidden"
           style={{
-            height: 104,
+            height: 116,
             background: PALETTE.panel,
             border: `1px solid ${PALETTE.line}`,
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)",
           }}
         >
+          {/* Edge Fade Gradients */}
           <div
             className="absolute top-0 left-0 right-0 h-full pointer-events-none"
             style={{
-              background: `linear-gradient(90deg, ${PALETTE.panel}, transparent 15%, transparent 85%, ${PALETTE.panel})`,
+              background: `linear-gradient(90deg, ${PALETTE.panel}, transparent 18%, transparent 82%, ${PALETTE.panel})`,
               zIndex: 5,
             }}
           />
 
+          {/* Winning Slot Selector Needle */}
           <div
             className="absolute top-0 left-1/2 flex flex-col items-center z-10"
             style={{ transform: "translateX(-50%)" }}
@@ -659,21 +687,15 @@ export default function GyreRoulette() {
                 height: 0,
                 borderLeft: "9px solid transparent",
                 borderRight: "9px solid transparent",
-                borderTop: `11px solid ${PALETTE.gold}`,
-                filter: "drop-shadow(0 0 6px rgba(217,169,77,0.55))",
-              }}
-            />
-            <div
-              style={{
-                width: 2,
-                height: 92,
-                background: `linear-gradient(180deg, ${PALETTE.gold}, transparent)`,
-                opacity: 0.35,
+                borderTop: `12px solid ${PALETTE.gold}`,
               }}
             />
           </div>
 
-          <div ref={viewportRef} className="h-full flex items-center overflow-hidden">
+          <div
+            ref={viewportRef}
+            className="h-full flex items-center overflow-hidden"
+          >
             <div
               ref={stripRef}
               className="flex items-center py-4"
@@ -682,13 +704,13 @@ export default function GyreRoulette() {
               {numbers.map((n, i) => (
                 <div
                   key={`${n}-${i}`}
-                  className="flex items-center justify-center font-mono font-semibold flex-none"
+                  className="tile-number flex items-center justify-center flex-none transition-all"
                   style={{
                     width: TILE_WIDTH,
-                    height: 78,
+                    height: 72,
                     margin: `0 ${TILE_GAP / 2}px`,
-                    borderRadius: 10,
-                    fontSize: "1.6rem",
+                    borderRadius: 14,
+                    fontSize: "1.75rem",
                     ...tileStyle(n),
                   }}
                 >
@@ -699,19 +721,20 @@ export default function GyreRoulette() {
           </div>
         </div>
 
+        {/* Bet Amount Control Bar */}
         <div
-          className="rounded-2xl p-3 sm:p-4 mb-6 flex flex-wrap items-center gap-2"
+          className="rounded-2xl p-2.5 sm:p-3 mb-4 flex flex-wrap items-center gap-3"
           style={panelBase}
         >
           <div
-            className="flex items-center flex-1 rounded-xl px-3"
+            className="flex items-center flex-1 rounded-xl px-4"
             style={{
               background: PALETTE.panel2,
               border: `1px solid ${PALETTE.line}`,
-              minWidth: 160,
+              minWidth: 200,
             }}
           >
-            <span className="text-sm mr-2" style={{ color: PALETTE.inkDim }}>
+            <span className="text-base mr-2" style={{ color: PALETTE.inkDim }}>
               $
             </span>
             <input
@@ -720,14 +743,14 @@ export default function GyreRoulette() {
               step="0.01"
               value={betAmount}
               onChange={(e) => setBetAmount(e.target.value)}
-              className="gyre-num font-mono bg-transparent outline-none py-3 w-full text-lg font-medium"
+              className="gyre-num bg-transparent outline-none py-3 w-full text-lg font-semibold"
               style={{ color: PALETTE.ink }}
             />
           </div>
 
           <div className="flex gap-2">
             <button
-              className="gyre-btn btn-glow-gold px-3.5 py-2 rounded-lg text-sm font-medium"
+              className="gyre-btn px-4 py-3 rounded-xl text-xs font-semibold"
               style={{
                 background: PALETTE.panel2,
                 border: `1px solid ${PALETTE.line}`,
@@ -738,7 +761,7 @@ export default function GyreRoulette() {
               ½
             </button>
             <button
-              className="gyre-btn btn-glow-gold px-3.5 py-2 rounded-lg text-sm font-medium"
+              className="gyre-btn px-4 py-3 rounded-xl text-xs font-semibold"
               style={{
                 background: PALETTE.panel2,
                 border: `1px solid ${PALETTE.line}`,
@@ -749,7 +772,7 @@ export default function GyreRoulette() {
               2×
             </button>
             <button
-              className="gyre-btn btn-glow-gold px-3.5 py-2 rounded-lg text-sm font-medium"
+              className="gyre-btn px-4 py-3 rounded-xl text-xs font-semibold"
               style={{
                 background: PALETTE.panel2,
                 border: `1px solid ${PALETTE.line}`,
@@ -762,7 +785,8 @@ export default function GyreRoulette() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {/* Wager Panels */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {betOptions.map((p) => {
             const currentWager = wagers[p.key];
             const isHasWager = currentWager > 0;
@@ -771,11 +795,17 @@ export default function GyreRoulette() {
             const isWinner = outcome?.kind === "win";
             const isLoser = outcome?.kind === "loss";
 
+            const parsedBetInput = Number.parseFloat(betAmount);
+            const validBetAmount =
+              Number.isFinite(parsedBetInput) && parsedBetInput > 0
+                ? parsedBetInput
+                : 0;
+
             return (
               <div
                 key={p.key}
                 className={
-                  `relative rounded-2xl p-4 flex flex-col justify-between transition-all duration-300 ` +
+                  `relative rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 ` +
                   `${
                     flash.panel === p.key
                       ? flash.kind === "win"
@@ -785,63 +815,69 @@ export default function GyreRoulette() {
                   }`
                 }
                 style={{
-                  ...panelBase,
-                  borderColor: isWinner
-                    ? PALETTE.gold
-                    : isLoser
-                    ? PALETTE.red
-                    : isHasWager
-                    ? p.color
-                    : PALETTE.line,
+                  background: p.bgLight,
+                  border: `1px solid ${p.borderColor}`,
                   boxShadow: isWinner
-                    ? `0 0 20px rgba(217,169,77,0.25)`
+                    ? `0 0 16px rgba(211, 161, 84, 0.3)`
                     : isLoser
-                    ? `0 0 12px rgba(225, 75, 90, 0.3)`
-                    : isHasWager
-                    ? `0 0 12px ${p.glowColor}`
-                    : "none",
-                  background: isWinner
-                    ? "linear-gradient(180deg, #1f2333, #222026)"
-                    : isLoser
-                    ? "linear-gradient(180deg, #1f2333, #261c20)"
-                    : PALETTE.panel,
+                      ? `0 0 12px rgba(241, 143, 142, 0.25)`
+                      : isHasWager
+                        ? `0 0 12px ${p.glowColor}`
+                        : "none",
                 }}
               >
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium" style={{ color: p.labelColor }}>
+                    <span
+                      className="font-semibold text-base"
+                      style={{ color: p.labelColor }}
+                    >
                       {p.label}
                     </span>
-                    <span className="text-sm font-mono" style={{ color: PALETTE.inkDim }}>
-                      {p.mult.toFixed(2)}×
-                    </span>
+
+                    {isHasWager && (
+                      <span
+                        className="text-xs font-bold px-2 py-0.5 rounded-full"
+                        style={{
+                          background: p.buttonBg,
+                          color: "#FFFFFF",
+                        }}
+                      ></span>
+                    )}
                   </div>
-                  <div className="text-xs" style={{ color: PALETTE.inkDim }}>
-                    {p.odds}
+                  <div
+                    className="text-2xl font-bold"
+                    style={{ color: PALETTE.ink }}
+                  >
+                    {p.mult.toFixed(2)}×
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs" style={{ color: PALETTE.inkDim }}>
-                    </span>
-                  </div>
-
+                <div className="mt-6">
+                  {/* Total Staked Display Box */}
                   <div
-                    className="font-mono text-lg font-semibold rounded-lg px-2.5 py-1.5 transition-colors"
+                    className="text-base font-semibold rounded-xl px-3 py-2.5 transition-all text-center flex items-center justify-between"
                     style={{
-                      background: PALETTE.panel2,
+                      background: PALETTE.panel,
+                      border: `1px solid ${p.borderColor}`,
+                      color: PALETTE.ink,
                     }}
                   >
-                    {fmt(currentWager || 0)}
+                    <span
+                      className="text-xs font-medium uppercase tracking-wider"
+                      style={{ color: PALETTE.inkDim }}
+                    >
+                      Total Wager
+                    </span>
+                    <span>{fmt(currentWager || 0)}</span>
                   </div>
 
-                  {/* Voiton näyttö */}
+                  {/* Outcome Win Indicator */}
                   {isWinner && (
                     <div
-                      className="mt-2 text-xs font-mono font-semibold text-center py-1 rounded-md transition-all duration-300"
+                      className="mt-2 text-xs font-semibold text-center py-1 rounded-md transition-all duration-300"
                       style={{
-                        background: "rgba(217,169,77,0.15)",
+                        background: "rgba(211,161,84,0.15)",
                         color: PALETTE.gold,
                         border: `1px solid ${PALETTE.gold}`,
                       }}
@@ -850,34 +886,33 @@ export default function GyreRoulette() {
                     </div>
                   )}
 
-                  {/* Tappion näyttö */}
+                  {/* Outcome Loss Indicator */}
                   {isLoser && (
                     <div
-                      className="mt-2 text-xs font-mono font-semibold text-center py-1 rounded-md transition-all duration-300"
+                      className="mt-2 text-xs font-semibold text-center py-1 rounded-md transition-all duration-300"
                       style={{
-                        background: "rgba(225,75,90,0.15)",
-                        color: PALETTE.red,
-                        border: `1px solid ${PALETTE.red}`,
+                        background: "rgba(241,143,142,0.15)",
+                        color: "#D64242",
+                        border: "1px solid #FADAD8",
                       }}
                     >
                       -{fmt(outcome.amount)}
                     </div>
                   )}
 
+                  {/* Clean Solid Colored Action Button */}
                   <button
-                    className={`gyre-btn btn-glow-${p.key} w-full py-2.5 mt-3 rounded-xl font-medium`}
+                    className="gyre-btn w-full py-3.5 mt-3 rounded-xl text-sm font-semibold capitalize transition-all flex items-center justify-center shadow-sm"
                     style={{
-                      background: p.color,
-                      color: p.textOn,
-                      border:
-                        p.key === "black"
-                          ? "1px solid rgba(255,255,255,0.15)"
-                          : "1px solid transparent",
+                      background: p.buttonBg,
+                      color: "#FFFFFF",
+                      border: "none",
+                      boxShadow: `0 3px 10px ${p.glowColor}`,
                     }}
-                    disabled={spinning}
+                    disabled={spinning || validBetAmount <= 0}
                     onClick={() => placeBet(p.key)}
                   >
-                    Bet {p.label.toLowerCase()}
+                    Bet {p.key}
                   </button>
                 </div>
               </div>
@@ -885,9 +920,12 @@ export default function GyreRoulette() {
           })}
         </div>
 
-        <p className="text-xs mt-6 text-center" style={{ color: PALETTE.inkDim }}>
-          Each spin lands on 0–14. Zero pays green, 1–7 pay red, and 8–14 pay black.
-          Simulated currency only — nothing here is real money.
+        <p
+          className="text-xs sm:text-sm mt-8 text-center"
+          style={{ color: PALETTE.inkDim }}
+        >
+          Each spin lands on 0–14. Zero pays green, 1–7 pay red, and 8–14 pay
+          black. Simulated currency only — nothing here is real money.
         </p>
       </div>
     </div>
