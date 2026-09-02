@@ -13,12 +13,19 @@ interface FlashState {
   kind: "win" | "error" | null;
 }
 
+interface OutcomeState {
+  color: Color;
+  kind: "win" | "loss";
+  amount: number;
+}
+
 interface BetOption {
   key: Color;
   label: string;
   mult: number;
   odds: string;
   color: string;
+  glowColor: string;
   labelColor: string;
   textOn: string;
 }
@@ -164,6 +171,9 @@ export default function GyreRoulette() {
   const [spinning, setSpinning] = useState<boolean>(false);
   const [resultText, setResultText] = useState<string>("");
   const [betAmount, setBetAmount] = useState<string>("1.00");
+  
+  // Tallentaa viimeisimmän kierroksen voiton tai tappion per väri
+  const [outcomes, setOutcomes] = useState<OutcomeState[]>([]);
 
   const [flash, setFlash] = useState<FlashState>({
     panel: null,
@@ -180,13 +190,25 @@ export default function GyreRoulette() {
   const triggerSpinRef = useRef<() => void>(() => {});
   const repositionRef = useRef<() => void>(() => {});
 
-  // Sound File References
   const rollingAudioRef = useRef<HTMLAudioElement | null>(null);
   const doneAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    rollingAudioRef.current = new Audio("/sounds/rolling.wav");
-    doneAudioRef.current = new Audio("/sounds/done.wav");
+    const rolling = new Audio("/sounds/rolling.wav");
+    const done = new Audio("/sounds/done.wav");
+
+    rolling.preload = "auto";
+    done.preload = "auto";
+
+    rollingAudioRef.current = rolling;
+    doneAudioRef.current = done;
+
+    return () => {
+      rolling.pause();
+      done.pause();
+      rollingAudioRef.current = null;
+      doneAudioRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -196,6 +218,17 @@ export default function GyreRoulette() {
     triggerSpinRef.current = triggerSpin;
     repositionRef.current = () => reposition(false);
   });
+
+  // Tyhjennetään tulosilmoitukset (voitto/häviö) 2.5s kuluttua
+  useEffect(() => {
+    if (outcomes.length === 0) return;
+
+    const timer = window.setTimeout(() => {
+      setOutcomes([]);
+    }, 2500);
+
+    return () => window.clearTimeout(timer);
+  }, [outcomes]);
 
   function playRollingSound() {
     if (rollingAudioRef.current) {
@@ -257,6 +290,7 @@ export default function GyreRoulette() {
     setSpinning(true);
     spinningRef.current = true;
     setResultText("");
+    setOutcomes([]);
 
     const result = randomSlot();
     setNumbers(buildNumbers(result));
@@ -275,6 +309,21 @@ export default function GyreRoulette() {
     const totalStaked = currentWagers.red + currentWagers.green + currentWagers.black;
 
     const payout = winningBet > 0 ? winningBet * PAYOUT[winningColor] : 0;
+    const newOutcomes: OutcomeState[] = [];
+
+    // Lasketaan voitoille ja tappioille indikaattorit
+    (Object.keys(currentWagers) as Color[]).forEach((col) => {
+      const bet = currentWagers[col];
+      if (bet > 0) {
+        if (col === winningColor) {
+          newOutcomes.push({ color: col, kind: "win", amount: bet * PAYOUT[col] });
+        } else {
+          newOutcomes.push({ color: col, kind: "loss", amount: bet });
+        }
+      }
+    });
+
+    setOutcomes(newOutcomes);
 
     if (payout > 0) {
       setBalance((b) => b + payout);
@@ -340,7 +389,11 @@ export default function GyreRoulette() {
   }, []);
 
   useEffect(() => {
-    const onResize = () => repositionRef.current();
+    const onResize = () => {
+      if (!spinningRef.current) {
+        repositionRef.current();
+      }
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -389,8 +442,9 @@ export default function GyreRoulette() {
       mult: PAYOUT.red,
       odds: "7 of 15 slots",
       color: PALETTE.red,
+      glowColor: "rgba(225, 75, 90, 0.45)",
       labelColor: PALETTE.red,
-      textOn: "#2A0E12",
+      textOn: "#FFFFFF",
     },
     {
       key: "green",
@@ -398,8 +452,9 @@ export default function GyreRoulette() {
       mult: PAYOUT.green,
       odds: "1 of 15 slots",
       color: PALETTE.green,
+      glowColor: "rgba(55, 182, 121, 0.45)",
       labelColor: PALETTE.green,
-      textOn: "#0C2A1B",
+      textOn: "#FFFFFF",
     },
     {
       key: "black",
@@ -407,6 +462,7 @@ export default function GyreRoulette() {
       mult: PAYOUT.black,
       odds: "7 of 15 slots",
       color: PALETTE.black,
+      glowColor: "rgba(199, 204, 224, 0.25)",
       labelColor: "#C7CCE0",
       textOn: "#EDEFF6",
     },
@@ -443,12 +499,37 @@ export default function GyreRoulette() {
         .flash-error { animation: flashError 0.55s ease; }
 
         .gyre-btn {
-          transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .gyre-btn:active { transform: scale(0.97); }
-        .gyre-btn:hover:not(:disabled) { filter: brightness(1.08); }
-        .gyre-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .gyre-btn:active:not(:disabled) {
+          transform: scale(0.97);
+        }
+
+        .gyre-btn:hover:not(:disabled) {
+          filter: brightness(1.12);
+        }
+
+        .btn-glow-red:hover:not(:disabled) {
+          box-shadow: 0 0 16px rgba(225, 75, 90, 0.5), 0 0 2px rgba(225, 75, 90, 0.8);
+        }
+
+        .btn-glow-green:hover:not(:disabled) {
+          box-shadow: 0 0 16px rgba(55, 182, 121, 0.5), 0 0 2px rgba(55, 182, 121, 0.8);
+        }
+
+        .btn-glow-black:hover:not(:disabled) {
+          box-shadow: 0 0 16px rgba(199, 204, 224, 0.3), 0 0 2px rgba(199, 204, 224, 0.5);
+        }
+
+        .btn-glow-gold:hover:not(:disabled) {
+          box-shadow: 0 0 12px rgba(217, 169, 77, 0.35);
+        }
+
+        .gyre-btn:disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
 
         .gyre-num::-webkit-outer-spin-button,
         .gyre-num::-webkit-inner-spin-button {
@@ -528,7 +609,7 @@ export default function GyreRoulette() {
             )}
           </span>
 
-          <span className="text-sm font-mono" style={{ color: PALETTE.gold }}>
+          <span className="text-sm font-mono font-medium" style={{ color: PALETTE.gold }}>
             {resultText}
           </span>
         </div>
@@ -646,7 +727,7 @@ export default function GyreRoulette() {
 
           <div className="flex gap-2">
             <button
-              className="gyre-btn px-3 py-2 rounded-lg text-sm font-medium"
+              className="gyre-btn btn-glow-gold px-3.5 py-2 rounded-lg text-sm font-medium"
               style={{
                 background: PALETTE.panel2,
                 border: `1px solid ${PALETTE.line}`,
@@ -657,7 +738,7 @@ export default function GyreRoulette() {
               ½
             </button>
             <button
-              className="gyre-btn px-3 py-2 rounded-lg text-sm font-medium"
+              className="gyre-btn btn-glow-gold px-3.5 py-2 rounded-lg text-sm font-medium"
               style={{
                 background: PALETTE.panel2,
                 border: `1px solid ${PALETTE.line}`,
@@ -668,7 +749,7 @@ export default function GyreRoulette() {
               2×
             </button>
             <button
-              className="gyre-btn px-3 py-2 rounded-lg text-sm font-medium"
+              className="gyre-btn btn-glow-gold px-3.5 py-2 rounded-lg text-sm font-medium"
               style={{
                 background: PALETTE.panel2,
                 border: `1px solid ${PALETTE.line}`,
@@ -682,60 +763,126 @@ export default function GyreRoulette() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {betOptions.map((p) => (
-            <div
-              key={p.key}
-              className={
-                `rounded-2xl p-4 flex flex-col justify-between ` +
-                `${
-                  flash.panel === p.key
-                    ? flash.kind === "win"
-                      ? "flash-win"
-                      : "flash-error"
-                    : ""
-                }`
-              }
-              style={panelBase}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium" style={{ color: p.labelColor }}>
-                    {p.label}
-                  </span>
-                  <span className="text-sm font-mono" style={{ color: PALETTE.inkDim }}>
-                    {p.mult.toFixed(2)}×
-                  </span>
-                </div>
-                <div className="text-xs" style={{ color: PALETTE.inkDim }}>
-                  {p.odds}
-                </div>
-              </div>
+          {betOptions.map((p) => {
+            const currentWager = wagers[p.key];
+            const isHasWager = currentWager > 0;
+            const outcome = outcomes.find((o) => o.color === p.key);
 
-              <div className="mt-4">
-                <div className="text-xs mb-1" style={{ color: PALETTE.inkDim }}>
-                  On the table
+            const isWinner = outcome?.kind === "win";
+            const isLoser = outcome?.kind === "loss";
+
+            return (
+              <div
+                key={p.key}
+                className={
+                  `relative rounded-2xl p-4 flex flex-col justify-between transition-all duration-300 ` +
+                  `${
+                    flash.panel === p.key
+                      ? flash.kind === "win"
+                        ? "flash-win"
+                        : "flash-error"
+                      : ""
+                  }`
+                }
+                style={{
+                  ...panelBase,
+                  borderColor: isWinner
+                    ? PALETTE.gold
+                    : isLoser
+                    ? PALETTE.red
+                    : isHasWager
+                    ? p.color
+                    : PALETTE.line,
+                  boxShadow: isWinner
+                    ? `0 0 20px rgba(217,169,77,0.25)`
+                    : isLoser
+                    ? `0 0 12px rgba(225, 75, 90, 0.3)`
+                    : isHasWager
+                    ? `0 0 12px ${p.glowColor}`
+                    : "none",
+                  background: isWinner
+                    ? "linear-gradient(180deg, #1f2333, #222026)"
+                    : isLoser
+                    ? "linear-gradient(180deg, #1f2333, #261c20)"
+                    : PALETTE.panel,
+                }}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium" style={{ color: p.labelColor }}>
+                      {p.label}
+                    </span>
+                    <span className="text-sm font-mono" style={{ color: PALETTE.inkDim }}>
+                      {p.mult.toFixed(2)}×
+                    </span>
+                  </div>
+                  <div className="text-xs" style={{ color: PALETTE.inkDim }}>
+                    {p.odds}
+                  </div>
                 </div>
-                <div className="font-mono text-lg font-semibold mb-3">
-                  {fmt(wagers[p.key])}
+
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs" style={{ color: PALETTE.inkDim }}>
+                    </span>
+                  </div>
+
+                  <div
+                    className="font-mono text-lg font-semibold rounded-lg px-2.5 py-1.5 transition-colors"
+                    style={{
+                      background: PALETTE.panel2,
+                    }}
+                  >
+                    {fmt(currentWager || 0)}
+                  </div>
+
+                  {/* Voiton näyttö */}
+                  {isWinner && (
+                    <div
+                      className="mt-2 text-xs font-mono font-semibold text-center py-1 rounded-md transition-all duration-300"
+                      style={{
+                        background: "rgba(217,169,77,0.15)",
+                        color: PALETTE.gold,
+                        border: `1px solid ${PALETTE.gold}`,
+                      }}
+                    >
+                      Won +{fmt(outcome.amount)}!
+                    </div>
+                  )}
+
+                  {/* Tappion näyttö */}
+                  {isLoser && (
+                    <div
+                      className="mt-2 text-xs font-mono font-semibold text-center py-1 rounded-md transition-all duration-300"
+                      style={{
+                        background: "rgba(225,75,90,0.15)",
+                        color: PALETTE.red,
+                        border: `1px solid ${PALETTE.red}`,
+                      }}
+                    >
+                      -{fmt(outcome.amount)}
+                    </div>
+                  )}
+
+                  <button
+                    className={`gyre-btn btn-glow-${p.key} w-full py-2.5 mt-3 rounded-xl font-medium`}
+                    style={{
+                      background: p.color,
+                      color: p.textOn,
+                      border:
+                        p.key === "black"
+                          ? "1px solid rgba(255,255,255,0.15)"
+                          : "1px solid transparent",
+                    }}
+                    disabled={spinning}
+                    onClick={() => placeBet(p.key)}
+                  >
+                    Bet {p.label.toLowerCase()}
+                  </button>
                 </div>
-                <button
-                  className="gyre-btn w-full py-2.5 rounded-xl font-medium"
-                  style={{
-                    background: p.color,
-                    color: p.textOn,
-                    border:
-                      p.key === "black"
-                        ? "1px solid rgba(255,255,255,0.12)"
-                        : "1px solid transparent",
-                  }}
-                  disabled={spinning}
-                  onClick={() => placeBet(p.key)}
-                >
-                  Bet {p.label.toLowerCase()}
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <p className="text-xs mt-6 text-center" style={{ color: PALETTE.inkDim }}>
