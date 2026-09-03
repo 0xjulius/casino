@@ -27,52 +27,10 @@
     }
 
   /* Classical Cinzel font reserved strictly for headings */
-   h2, h3, h4, h5, h6 {
+    h2, h3, h4, h5, h6 {
     font-family: var(--font-serif);
     letter-spacing: 0.04em;
   }
-}
-
-/* Explicit Header Utility */
-.font-gyre-title {
-  font-family: var(--font-serif);
-  letter-spacing: 0.04em;
-}
-
-/* Roulette & History Tile Numbers Utility */
-.tile-number {
-  font-family: var(--font-number);
-}
-
-/* Base button interaction styles (enforces sans-serif) */
-.gyre-btn {
-  font-family: var(--font-sans) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.gyre-btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.gyre-btn:hover:not(:disabled) {
-  filter: brightness(0.95);
-}
-
-.gyre-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-/* Numeric bet input styling */
-.gyre-num::-webkit-outer-spin-button,
-.gyre-num::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.gyre-num {
-  -moz-appearance: textfield;
-  font-family: var(--font-mono);
 }
 
 /* Win and Error Flash Animations */
@@ -101,3 +59,4 @@
 .flash-error {
   animation: flashError 0.55s ease;
 }
+

@@ -42,14 +42,26 @@ function GlobalMouseRig({ children }: { children: React.ReactNode }) {
 
 export default function CoinCanvas() {
   return (
-    <div className="w-full h-[180px] sm:h-[220px] relative pointer-events-none pb-4">
+    <div className="w-full h-[180px] sm:h-[220px] relative pointer-events-none pb-4 flex items-center justify-center">
+      {/* Pehmeä CSS-taustaglow pään takana */}
+      <div 
+        className="absolute w-48 h-48 rounded-full pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(242,208,112,0.6) 0%, rgba(212,175,55,0.2) 45%, transparent 70%)",
+          filter: "blur(25px)",
+        }}
+      />
+
       <Canvas camera={{ position: [0, 0, 15], fov: 45 }}>
         <ambientLight intensity={0.6} />
-        <directionalLight position={[10,  10, 5]} intensity={1.5} />
+        <directionalLight position={[10, 10, 5]} intensity={1.5} />
         <Environment preset="city" />
 
         <Suspense fallback={null}>
           <GlobalMouseRig>
+            {/* Kultainen pistevalo 3D-mallin takana tuomassa reunavaloa */}
+            <pointLight position={[0, 0, -2]} intensity={8} color="#FFE8A3" distance={10} />
+
             <Center>
               <Model 
                 url="/models/model.glb" 
