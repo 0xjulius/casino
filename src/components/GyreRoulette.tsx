@@ -129,7 +129,7 @@ function fmt(n: number): string {
 }
 
 export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
-  const [balance, setBalance] = useState<number>(1000.0);
+  const [balance, setBalance] = useState<number>(2000.0);
 
   const [wagers, setWagers] = useState<Wagers>({
     red: 0,
