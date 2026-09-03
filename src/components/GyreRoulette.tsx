@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import "../App.css";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  animate,
+} from "framer-motion";
 
 type Color = "red" | "green" | "black";
 
@@ -772,7 +777,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     <span className="uppercase text-[9px] sm:text-[10px] font-bold tracking-wider hidden text-[#8C827A] md:inline">
                       BET <span className="hidden lg:inline">AMOUNT</span>
                     </span>
-
 
                     <div className="flex items-center gap-1 sm:gap-2">
                       {isWinner && (
