@@ -1,8 +1,8 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Oldenburg&display=swap');
+@import "tailwindcss";
 
 :root {
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -24,10 +24,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
-    }
+  }
 
-  /* Classical Cinzel font reserved strictly for headings */
-    h2, h3, h4, h5, h6 {
+  h2, h3, h4, h5, h6 {
     font-family: var(--font-serif);
     letter-spacing: 0.04em;
   }
@@ -35,28 +34,14 @@
 
 /* Win and Error Flash Animations */
 @keyframes flashWin {
-  0% {
-    background-color: rgba(211, 161, 84, 0.2);
-  }
-  100% {
-    background-color: transparent;
-  }
+  0% { background-color: rgba(211, 161, 84, 0.2); }
+  100% { background-color: transparent; }
 }
 
 @keyframes flashError {
-  0% {
-    background-color: rgba(241, 143, 142, 0.2);
-  }
-  100% {
-    background-color: transparent;
-  }
+  0% { background-color: rgba(241, 143, 142, 0.2); }
+  100% { background-color: transparent; }
 }
 
-.flash-win {
-  animation: flashWin 0.55s ease;
-}
-
-.flash-error {
-  animation: flashError 0.55s ease;
-}
-
+.flash-win { animation: flashWin 0.55s ease; }
+.flash-error { animation: flashError 0.55s ease; }

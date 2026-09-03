@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import GyreRoulette from "./components/GyreRoulette";
 import CoinCanvas from "./components/CoinCanvas";
+import GoldDust from "./components/GoldDust";
 import bgImage from "./assets/bg2.png";
 
 function App() {
   const [mounted, setMounted] = useState(false);
 
-  // Varmistetaan, että komponentti animoituu aina kun sivu ladataan selaimessa
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -23,7 +23,10 @@ function App() {
         backgroundAttachment: "fixed",
       }}
     >
-      {/* Kolikon Fade-in aina sivun avautuessa */}
+      {/* OMA PUHDAS CANVAS-KULTAPÖLY */}
+      <GoldDust />
+
+      {/* Kolikon Fade-in */}
       {mounted && (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
