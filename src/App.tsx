@@ -42,7 +42,7 @@ function App() {
       )}
 
       {/* Pelikortti */}
-      <main className="w-full z-20 px-2 sm:px-4">
+      <main className="w-full z-20 px-2 sm:px-4 pt-12 sm:pt-0">
         <GyreRoulette />
       </main>
     </div>

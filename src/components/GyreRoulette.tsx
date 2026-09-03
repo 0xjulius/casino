@@ -419,41 +419,41 @@ export default function GyreRoulette() {
     return () => window.clearTimeout(id);
   }, [flash]);
 
-  const betOptions: BetOption[] = [
-    {
-      key: "red",
-      label: "Red (1–7)",
-      mult: PAYOUT.red,
-      odds: "7 of 15 slots",
-      btnGradient: "bg-gradient-to-b from-[#E84D56] to-[#D83B44]",
-      btnHoverGlow: "hover:shadow-[0_0_20px_rgba(232,77,86,0.7)]",
-      labelColor: "text-[#C93B3B]",
-      bgLight: "bg-[#FAF0F0]",
-      borderColor: "border-[#F7D8D8]",
-    },
-    {
-      key: "green",
-      label: "Green (0)",
-      mult: PAYOUT.green,
-      odds: "1 of 15 slots",
-      btnGradient: "bg-gradient-to-b from-[#3E825A] to-[#2E6A47]",
-      btnHoverGlow: "hover:shadow-[0_0_20px_rgba(62,130,90,0.7)]",
-      labelColor: "text-[#2E6A47]",
-      bgLight: "bg-[#F0F7F2]",
-      borderColor: "border-[#D2E8D8]",
-    },
-    {
-      key: "black",
-      label: "Black (8–14)",
-      mult: PAYOUT.black,
-      odds: "7 of 15 slots",
-      btnGradient: "bg-gradient-to-b from-[#332D29] to-[#211C19]",
-      btnHoverGlow: "hover:shadow-[0_0_20px_rgba(51,45,41,0.6)]",
-      labelColor: "text-[#211C19]",
-      bgLight: "bg-[#F4F3F1]",
-      borderColor: "border-[#E2E0DD]",
-    },
-  ];
+const betOptions: BetOption[] = [
+  {
+    key: "red",
+    label: "Red (1–7)",
+    mult: PAYOUT.red,
+    odds: "7 of 15 slots",
+    btnGradient: "bg-gradient-to-b from-[#F25C6A] to-[#E03A4A]",
+    btnHoverGlow: "hover:shadow-[0_0_22px_rgba(226,58,74,0.45)]",
+    labelColor: "text-[#C41E2E]",
+    bgLight: "bg-[#FBE9EB]",
+    borderColor: "border-[#F0C4C9]",
+  },
+  {
+    key: "green",
+    label: "Green (0)",
+    mult: PAYOUT.green,
+    odds: "1 of 15 slots",
+    btnGradient: "bg-gradient-to-b from-[#3EC987] to-[#2BA86A]",
+    btnHoverGlow: "hover:shadow-[0_0_20px_rgba(43,168,106,0.4)]",
+    labelColor: "text-[#1A7A4C]",
+    bgLight: "bg-[#E6F6EE]",
+    borderColor: "border-[#BFE5D1]",
+  },
+  {
+    key: "black",
+    label: "Black (8–14)",
+    mult: PAYOUT.black,
+    odds: "7 of 15 slots",
+    btnGradient: "bg-gradient-to-b from-[#3F424C] to-[#2C2E36]",
+    btnHoverGlow: "hover:shadow-[0_0_18px_rgba(44,46,54,0.35)]",
+    labelColor: "text-[#1F2128]",
+    bgLight: "bg-[#E8E8EA]",
+    borderColor: "border-[#C9C9CE]",
+  },
+];
 
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-4 py-2 antialiased text-[#2D2621] font-sans">
