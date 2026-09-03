@@ -668,7 +668,6 @@ const betOptions: BetOption[] = [
           <div className="flex flex-wrap gap-1.5">
             {[
               { label: "+1", action: () => addBet(1) },
-              { label: "+2", action: () => addBet(2) },
               { label: "+5", action: () => addBet(5) },
               { label: "+10", action: () => addBet(10) },
               { label: "+100", action: () => addBet(100) },
