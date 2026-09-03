@@ -16,9 +16,10 @@ function App() {
     setMounted(true);
   }, []);
 
-  const triggerDarkFlash = () => {
+const triggerDarkFlash = () => {
     // Soitetaan ääni public/sounds/0.wav -kansiosta
     const audio = new Audio("/sounds/0.wav");
+    audio.volume = 0.3; // Asetetaan äänenvoimakkuus 20 % tasolle
     audio.play().catch((err) => console.error("Audio playback error:", err));
 
     setIsDarkFlash(true);
@@ -33,7 +34,7 @@ function App() {
     setTimeout(() => {
       setIsDarkFlash(false);
     }, 1200);
-  };
+};
 
   return (
     <div

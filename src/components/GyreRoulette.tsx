@@ -202,6 +202,8 @@ export default function GyreRoulette({
     const rolling = new Audio("/sounds/rolling.wav");
     const done = new Audio("/sounds/done.wav");
 
+    rolling.volume = 0.5;
+
     rolling.preload = "auto";
     done.preload = "auto";
 
@@ -907,7 +909,7 @@ export default function GyreRoulette({
             );
           })()}
         </div>
-        
+
         {/* Footer Feature Badges */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[#E5DAC8] text-xs">
           <div className="flex items-center gap-2">
