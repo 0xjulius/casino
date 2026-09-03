@@ -274,7 +274,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
     setResultText("");
     setOutcomes([]);
 
-    const result = 0
+    const result = randomSlot();
     setNumbers(buildNumbers(result));
 
     window.setTimeout(() => {
