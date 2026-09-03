@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import RulesModal from "./RulesModal";
 import DemoWalletModal from "./DemoWalletModal";
+import cardBg from "../assets/btn-bg.png";
 import "../App.css";
 import {
   motion,
@@ -26,18 +27,6 @@ interface OutcomeState {
   color: Color;
   kind: "win" | "loss";
   amount: number;
-}
-
-interface BetOption {
-  key: Color;
-  label: string;
-  mult: number;
-  odds: string;
-  btnGradient: string;
-  btnHoverGlow: string;
-  labelColor: string;
-  bgLight: string;
-  borderColor: string;
 }
 
 interface GyreRouletteProps {
@@ -462,42 +451,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
     return () => window.clearTimeout(id);
   }, [flash]);
 
-  const betOptions: BetOption[] = [
-    {
-      key: "red",
-      label: "Red (1–7)",
-      mult: PAYOUT.red,
-      odds: "7 of 15 slots",
-      btnGradient: "bg-gradient-to-b from-[#F25C6A] to-[#E03A4A]",
-      btnHoverGlow: "hover:shadow-[0_0_22px_rgba(226,58,74,0.45)]",
-      labelColor: "text-[#C41E2E]",
-      bgLight: "bg-[#FBE9EB]",
-      borderColor: "border-[#F0C4C9]",
-    },
-    {
-      key: "green",
-      label: "Green (0)",
-      mult: PAYOUT.green,
-      odds: "1 of 15 slots",
-      btnGradient: "bg-gradient-to-b from-[#3EC987] to-[#2BA86A]",
-      btnHoverGlow: "hover:shadow-[0_0_20px_rgba(43,168,106,0.4)]",
-      labelColor: "text-[#1A7A4C]",
-      bgLight: "bg-[#E6F6EE]",
-      borderColor: "border-[#BFE5D1]",
-    },
-    {
-      key: "black",
-      label: "Black (8–14)",
-      mult: PAYOUT.black,
-      odds: "7 of 15 slots",
-      btnGradient: "bg-gradient-to-b from-[#3F424C] to-[#2C2E36]",
-      btnHoverGlow: "hover:shadow-[0_0_18px_rgba(44,46,54,0.35)]",
-      labelColor: "text-[#1F2128]",
-      bgLight: "bg-[#E8E8EA]",
-      borderColor: "border-[#C9C9CE]",
-    },
-  ];
-
   return (
     <div className="max-w-5xl mx-auto px-2 sm:px-4 py-2 antialiased text-[#2D2621] font-sans">
       {/* Main Outer Container Card */}
@@ -514,7 +467,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </p>
           </div>
 
-          {/* Klikattava Demo Balance -painike */}
           <button
             type="button"
             onClick={() => setIsWalletOpen(true)}
@@ -529,7 +481,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
               </div>
             </div>
 
-            {/* Lompakkoikoni */}
             <div className="w-9 h-9 rounded-xl bg-[#FAF6F0] flex items-center justify-center border border-[#E2D6C3] shadow-sm text-amber-700 group-hover:scale-105 transition-transform pointer-events-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -733,15 +684,13 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
           </div>
         </div>
 
-        {/* Wager Panels */}
-        <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-8">
-          {betOptions.map((p) => {
-            const currentWager = wagers[p.key];
-            const outcome = outcomes.find((o) => o.color === p.key);
-
+       {/* Wager Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-8">
+          {/* 1. RED CARD (1–7) */}
+          {(() => {
+            const outcome = outcomes.find((o) => o.color === "red");
             const isWinner = outcome?.kind === "win";
             const isLoser = outcome?.kind === "loss";
-
             const parsedBetInput = Number.parseFloat(betAmount);
             const validBetAmount =
               Number.isFinite(parsedBetInput) && parsedBetInput > 0
@@ -750,78 +699,214 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
 
             return (
               <div
-                key={p.key}
-                className={`relative rounded-xl sm:rounded-2xl p-2 sm:p-4 flex flex-col justify-between border transition-all shadow-sm ${
-                  p.bgLight
-                } ${p.borderColor} ${
-                  flash.panel === p.key
+                style={{ backgroundImage: `url(${cardBg})` }}
+                className={`relative overflow-hidden w-full rounded-2xl p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-2xl flex flex-col justify-between ${
+                  flash.panel === "red"
                     ? flash.kind === "win"
                       ? "flash-win"
                       : "flash-error"
                     : ""
                 }`}
               >
-                <div>
-                  <div className="flex items-center justify-between mb-0.5 sm:mb-1">
-                    <span
-                      className={`font-semibold sm:font-bold text-[10px] sm:text-sm uppercase sm:normal-case tracking-wider sm:tracking-normal ${p.labelColor}`}
-                    >
-                      {p.label}
-                    </span>
-                  </div>
-                  <div className="text-lg sm:text-2xl font-black font font-serif text-[#2D2621] flex items-baseline gap-0.5">
-                    <span>{p.mult.toFixed(2)}</span>
-                    <span className="text-base sm:text-2xl font-bold text-[#2D2621]/80">
-                      ×
-                    </span>
-                  </div>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-b from-red-400/10 via-white/40 to-red-500/30 pointer-events-none" />
 
-                <div className="mt-2 sm:mt-4">
-                  <div
-                    className={`rounded-lg sm:rounded-xl px-1.5 py-1 sm:px-3.5 sm:py-2.5 mb-2 sm:mb-3 flex items-center justify-between border bg-white/80 shadow-inner ${p.borderColor}`}
-                  >
-                    <span className="uppercase text-[9px] sm:text-[10px] font-bold tracking-wider hidden text-[#8C827A] md:inline">
+                <div className="relative z-10 space-y-5">
+                  <div>
+                    <div className="text-red-500 font-bold text-xs tracking-wider uppercase">
+                      Red (1–7)
+                    </div>
+                    <div className="text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                      {PAYOUT.red.toFixed(2)}
+                      <span className="text-2xl font-normal text-[#d4af37]">
+                        ×
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* FIXED: Light background container with matching border & dark text */}
+                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
+                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold">
                       BET
                     </span>
-
-                    <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="flex items-center gap-2">
                       {isWinner && (
-                        <span className="text-[10px] sm:text-xs font-bold px-1 sm:px-2 py-0.5 rounded-md transition-all animate-pulse bg-[#D4AF37]/15 text-[#997300] border border-[#D4AF37]">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-md animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
                           +{fmt(outcome.amount)}
                         </span>
                       )}
-
                       {isLoser && (
-                        <span className="text-[10px] sm:text-xs font-bold px-1 sm:px-2 py-0.5 rounded-md transition-all opacity-80 bg-[#E64A53]/15 text-[#C93B3B] border border-[#F7D8D8]">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-red-500/20 text-red-700 border border-red-500/30">
                           -{fmt(outcome.amount)}
                         </span>
                       )}
-
                       {!isWinner && !isLoser && (
-                        <span className="font-mono text-xs sm:text-lg font-extrabold text-[#2D2621]">
-                          {fmt(currentWager || 0)}
+                        <span className="text-[#2D2621] font-bold">
+                          {fmt(wagers.red || 0)}
                         </span>
                       )}
                     </div>
                   </div>
 
                   <button
-                    className={`w-full py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-xs font-bold text-white transition-all duration-200 active:scale-95 flex items-center justify-center capitalize disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer hover:brightness-110 ${p.btnGradient} ${p.btnHoverGlow}`}
                     disabled={spinning || validBetAmount <= 0}
-                    onClick={() => placeBet(p.key)}
+                    onClick={() => placeBet("red")}
+                    className="w-full py-3.5 rounded-xl font-bold text-sm text-stone-100 bg-red-900/80 hover:bg-red-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    Bet {p.key}
+                    Bet Red
                   </button>
                 </div>
               </div>
             );
-          })}
+          })()}
+
+          {/* 2. GREEN CARD (0) */}
+          {(() => {
+            const outcome = outcomes.find((o) => o.color === "green");
+            const isWinner = outcome?.kind === "win";
+            const isLoser = outcome?.kind === "loss";
+            const parsedBetInput = Number.parseFloat(betAmount);
+            const validBetAmount =
+              Number.isFinite(parsedBetInput) && parsedBetInput > 0
+                ? parsedBetInput
+                : 0;
+
+            return (
+              <div
+                style={{ backgroundImage: `url(${cardBg})` }}
+                className={`relative overflow-hidden w-full rounded-2xl p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-2xl flex flex-col justify-between ${
+                  flash.panel === "green"
+                    ? flash.kind === "win"
+                      ? "flash-win"
+                      : "flash-error"
+                    : ""
+                }`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-emerald-400/10 via-white/40 to-emerald-500/30 pointer-events-none" />
+
+                <div className="relative z-10 space-y-5">
+                  <div>
+                    <div className="text-emerald-500 font-bold text-xs tracking-wider uppercase">
+                      Green (0)
+                    </div>
+                    <div className="text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                      {PAYOUT.green.toFixed(2)}
+                      <span className="text-2xl font-normal text-[#d4af37]">
+                        ×
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
+                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold">
+                      BET
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {isWinner && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-md animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
+                          +{fmt(outcome.amount)}
+                        </span>
+                      )}
+                      {isLoser && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-red-500/20 text-red-700 border border-red-500/30">
+                          -{fmt(outcome.amount)}
+                        </span>
+                      )}
+                      {!isWinner && !isLoser && (
+                        <span className="text-[#2D2621] font-bold">
+                          {fmt(wagers.green || 0)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    disabled={spinning || validBetAmount <= 0}
+                    onClick={() => placeBet("green")}
+                    className="w-full py-3.5 rounded-xl font-bold text-sm text-stone-100 bg-emerald-900/80 hover:bg-emerald-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Bet Green
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* 3. BLACK CARD (8–14) */}
+          {(() => {
+            const outcome = outcomes.find((o) => o.color === "black");
+            const isWinner = outcome?.kind === "win";
+            const isLoser = outcome?.kind === "loss";
+            const parsedBetInput = Number.parseFloat(betAmount);
+            const validBetAmount =
+              Number.isFinite(parsedBetInput) && parsedBetInput > 0
+                ? parsedBetInput
+                : 0;
+
+            return (
+              <div
+                style={{ backgroundImage: `url(${cardBg})` }}
+                className={`relative overflow-hidden w-full rounded-2xl p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-2xl flex flex-col justify-between ${
+                  flash.panel === "black"
+                    ? flash.kind === "win"
+                      ? "flash-win"
+                      : "flash-error"
+                    : ""
+                }`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-b from-stone-400/10 via-white/20 to-black/30 pointer-events-none" />
+
+                <div className="relative z-10 space-y-5">
+                  <div>
+                    <div className="text-stone-500 font-bold text-xs tracking-wider uppercase">
+                      Black (8–14)
+                    </div>
+                    <div className="text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                      {PAYOUT.black.toFixed(2)}
+                      <span className="text-2xl font-normal text-[#d4af37]">
+                        ×
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* FIXED: Light background container with matching border & dark text */}
+                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
+                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold">
+                      BET
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {isWinner && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-md animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
+                          +{fmt(outcome.amount)}
+                        </span>
+                      )}
+                      {isLoser && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-red-500/20 text-red-700 border border-red-500/30">
+                          -{fmt(outcome.amount)}
+                        </span>
+                      )}
+                      {!isWinner && !isLoser && (
+                        <span className="text-[#2D2621] font-bold">
+                          {fmt(wagers.black || 0)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    disabled={spinning || validBetAmount <= 0}
+                    onClick={() => placeBet("black")}
+                    className="w-full py-3.5 rounded-xl font-bold text-sm text-stone-100 bg-stone-900/80 hover:bg-stone-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    Bet Black
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Footer Feature Badges */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[#E5DAC8] text-xs">
-          {/* 1. Slots */}
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800">
               <svg
@@ -845,7 +930,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </div>
           </div>
 
-          {/* 2. Legal Notice Button */}
           <button
             onClick={() => setIsWalletOpen(true)}
             className="flex items-center gap-2 text-left p-2 rounded-xl hover:bg-[#EFE8DC]/60 transition-colors group cursor-pointer"
@@ -877,7 +961,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </div>
           </button>
 
-          {/* 3. Provably Random */}
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800">
               <svg
@@ -903,7 +986,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </div>
           </div>
 
-          {/* 4. How It Works */}
           <button
             onClick={() => setIsRulesOpen(true)}
             className="flex items-center gap-2 text-left p-2 rounded-xl hover:bg-[#EFE8DC]/60 transition-colors group cursor-pointer"
