@@ -141,7 +141,7 @@ export default function GyreRoulette() {
   const [secondsLeft, setSecondsLeft] = useState<number>(11);
   const [spinning, setSpinning] = useState<boolean>(false);
   const [resultText, setResultText] = useState<string>("");
-  const [betAmount, setBetAmount] = useState<string>("0.50");
+  const [betAmount, setBetAmount] = useState<string>("1.00");
 
   const [outcomes, setOutcomes] = useState<OutcomeState[]>([]);
 
@@ -320,11 +320,11 @@ export default function GyreRoulette() {
     if (totalStaked > 0) {
       if (payout > 0) {
         setResultText(
-          `Landed on ${result} (${winningColor}) · won ${fmt(payout)}`
+          `Landed on ${result} (${winningColor}) · won ${fmt(payout)}`,
         );
       } else {
         setResultText(
-          `Landed on ${result} (${winningColor}) · lost ${fmt(totalStaked)}`
+          `Landed on ${result} (${winningColor}) · lost ${fmt(totalStaked)}`,
         );
       }
     } else {
@@ -456,9 +456,9 @@ export default function GyreRoulette() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-2 antialiased text-[#2D2621] font-sans">
+    <div className="max-w-5xl mx-auto px-2 sm:px-4 py-2 antialiased text-[#2D2621] font-sans">
       {/* Main Outer Container Card */}
-      <div className="relative rounded-3xl p-6 sm:p-8 border border-[#EADFCF] bg-[#FAF6F0]/20 backdrop-blur shadow-[0_20px_50px_rgba(0,0,0,0.06),inset_0_2px_4px_rgba(255,255,255,0.8)] transition-all">
+      <div className="relative rounded-3xl p-3 sm:p-8 border border-[#EADFCF] bg-[#FAF6F0]/20 backdrop-blur shadow-[0_20px_50px_rgba(0,0,0,0.06),inset_0_2px_4px_rgba(255,255,255,0.8)] transition-all">
         {/* Header Section */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -607,7 +607,7 @@ export default function GyreRoulette() {
                         <div className="gold-frame-inner">
                           <div
                             className={`tile-number flex items-center justify-center h-full w-full text-2xl font-bold rounded-lg ${getTileClasses(
-                              n
+                              n,
                             )}`}
                           >
                             {n}
@@ -622,7 +622,7 @@ export default function GyreRoulette() {
                   <div
                     key={`${n}-${i}`}
                     className={`tile-number flex items-center justify-center flex-none text-2xl font-bold rounded-xl transition-all w-[84px] h-[68px] mx-[5px] ${getTileClasses(
-                      n
+                      n,
                     )}`}
                   >
                     {n}
@@ -639,23 +639,34 @@ export default function GyreRoulette() {
             Bet Amount
           </div>
 
-          <div className="flex items-center flex-1 min-w-[140px] rounded-xl px-3 bg-[#FAF6F0] border border-[#E2D6C3] shadow-inner">
-            <span className="text-sm font-semibold mr-1 text-[#8C827A]">
-              $
-            </span>
-            <input
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={betAmount}
-              onChange={(e) => setBetAmount(e.target.value)}
-              className="gyre-num bg-transparent outline-none py-2 w-full text-base font-bold font-mono text-[#2D2621]"
-            />
+          {/* Syötekenttä + Clear-nappi samassa boksissa */}
+          <div className="flex items-center flex-1 min-w-[160px] rounded-xl px-3 bg-[#FAF6F0] border border-[#E2D6C3] shadow-inner justify-between">
+            <div className="flex items-center flex-1 mr-2">
+              <span className="text-sm font-semibold mr-1 text-[#8C827A]">
+                $
+              </span>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={betAmount}
+                onChange={(e) => setBetAmount(e.target.value)}
+                className="gyre-num bg-transparent outline-none py-2 w-full text-base font-bold font-mono text-[#2D2621]"
+              />
+            </div>
+
+            {/* Clear-painike boksin sisällä oikeassa reunassa */}
+            <button
+              onClick={clearBet}
+              className="text-xs font-semibold text-[#8C827A] hover:text-[#2D2621] px-2 py-1 rounded-lg hover:bg-[#E2D6C3]/40 transition-colors"
+            >
+              Clear
+            </button>
           </div>
 
+          {/* Pikanapit ilman Clear-nappia */}
           <div className="flex flex-wrap gap-1.5">
             {[
-              { label: "Clear", action: clearBet },
               { label: "+1", action: () => addBet(1) },
               { label: "+2", action: () => addBet(2) },
               { label: "+5", action: () => addBet(5) },
@@ -676,8 +687,8 @@ export default function GyreRoulette() {
           </div>
         </div>
 
-        {/* Wager Panels */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {/* Wager Panels (Always 3 columns, fully responsive) */}
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-8">
           {betOptions.map((p) => {
             const currentWager = wagers[p.key];
             const outcome = outcomes.find((o) => o.color === p.key);
@@ -694,7 +705,7 @@ export default function GyreRoulette() {
             return (
               <div
                 key={p.key}
-                className={`relative rounded-2xl p-4 flex flex-col justify-between border transition-all shadow-sm ${
+                className={`relative rounded-xl sm:rounded-2xl p-2 sm:p-4 flex flex-col justify-between border transition-all shadow-sm ${
                   p.bgLight
                 } ${p.borderColor} ${
                   flash.panel === p.key
@@ -705,49 +716,57 @@ export default function GyreRoulette() {
                 }`}
               >
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`font-bold text-sm ${p.labelColor}`}>
+                  <div className="flex items-center justify-between mb-0.5 sm:mb-1">
+                    <span
+                      className={`font-semibold sm:font-bold text-[10px] sm:text-sm uppercase sm:normal-case tracking-wider sm:tracking-normal ${p.labelColor}`}
+                    >
                       {p.label}
                     </span>
                   </div>
-                  <div className="text-2xl font-black font-serif text-[#2D2621]">
-                    {p.mult.toFixed(2)}×
+                  <div className="text-lg sm:text-2xl font-black font font-serif text-[#2D2621] flex items-baseline gap-0.5">
+                    <span>{p.mult.toFixed(2)}</span>
+                    <span className="text-base sm:text-2xl font-bold text-[#2D2621]/80">
+                      ×
+                    </span>
                   </div>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-2 sm:mt-4">
                   {/* Total Wager Display Box */}
                   <div
-                    className={`rounded-xl px-3.5 py-2.5 mb-3 flex items-center justify-between border bg-white/80 shadow-inner ${p.borderColor}`}
+                    className={`rounded-lg sm:rounded-xl px-1.5 py-1 sm:px-3.5 sm:py-2.5 mb-2 sm:mb-3 flex items-center justify-between border bg-white/80 shadow-inner ${p.borderColor}`}
                   >
-                    <span className="uppercase text-[10px] font-bold tracking-wider text-[#8C827A]">
+                    <span className="uppercase text-[9px] sm:text-[10px] font-bold tracking-wider text-[#8C827A] hidden sm:inline">
                       Total Wager
                     </span>
+                    <span className="uppercase text-[9px] font-bold tracking-wider text-[#8C827A] sm:hidden">
+                      Wager
+                    </span>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                       {isWinner && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md transition-all animate-pulse bg-[#D4AF37]/15 text-[#997300] border border-[#D4AF37]">
-                          Won +{fmt(outcome.amount)}!
+                        <span className="text-[10px] sm:text-xs font-bold px-1 sm:px-2 py-0.5 rounded-md transition-all animate-pulse bg-[#D4AF37]/15 text-[#997300] border border-[#D4AF37]">
+                          +{fmt(outcome.amount)}
                         </span>
                       )}
 
                       {isLoser && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md transition-all opacity-80 bg-[#E64A53]/15 text-[#C93B3B] border border-[#F7D8D8]">
+                        <span className="text-[10px] sm:text-xs font-bold px-1 sm:px-2 py-0.5 rounded-md transition-all opacity-80 bg-[#E64A53]/15 text-[#C93B3B] border border-[#F7D8D8]">
                           -{fmt(outcome.amount)}
                         </span>
                       )}
 
                       {!isWinner && !isLoser && (
-                        <span className="font-mono text-base sm:text-lg font-extrabold text-[#2D2621]">
+                        <span className="font-mono text-xs sm:text-lg font-extrabold text-[#2D2621]">
                           {fmt(currentWager || 0)}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Main Action Button Glowing on Hover */}
+                  {/* Main Action Button */}
                   <button
-                    className={`w-full py-3 rounded-xl text-xs font-bold text-white transition-all duration-200 active:scale-95 flex items-center justify-center capitalize disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer hover:brightness-110 ${p.btnGradient} ${p.btnHoverGlow}`}
+                    className={`w-full py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-xs font-bold text-white transition-all duration-200 active:scale-95 flex items-center justify-center capitalize disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer hover:brightness-110 ${p.btnGradient} ${p.btnHoverGlow}`}
                     disabled={spinning || validBetAmount <= 0}
                     onClick={() => placeBet(p.key)}
                   >
