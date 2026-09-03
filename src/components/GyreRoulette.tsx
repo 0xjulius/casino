@@ -782,7 +782,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     className={`rounded-lg sm:rounded-xl px-1.5 py-1 sm:px-3.5 sm:py-2.5 mb-2 sm:mb-3 flex items-center justify-between border bg-white/80 shadow-inner ${p.borderColor}`}
                   >
                     <span className="uppercase text-[9px] sm:text-[10px] font-bold tracking-wider hidden text-[#8C827A] md:inline">
-                      BET <span className="hidden lg:inline">AMOUNT</span>
+                      BET
                     </span>
 
                     <div className="flex items-center gap-1 sm:gap-2">
