@@ -6,6 +6,11 @@ import { Center, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { Model } from "./Model"; 
 
+// 1. Lisätään isHidden-proppi rajapintaan
+interface CoinCanvasProps {
+  isHidden?: boolean;
+}
+
 function GlobalMouseRig({ children }: { children: React.ReactNode }) {
   const groupRef = useRef<THREE.Group>(null!);
 
@@ -37,9 +42,13 @@ function GlobalMouseRig({ children }: { children: React.ReactNode }) {
   return <group ref={groupRef}>{children}</group>;
 }
 
-export default function CoinCanvas() {
+export default function CoinCanvas({ isHidden = false }: CoinCanvasProps) {
   return (
-    <div className="w-full h-[180px] sm:h-[220px] relative pointer-events-none pb-4 flex items-center justify-center">
+    <div 
+      className={`w-full h-[180px] sm:h-[220px] relative pointer-events-none pb-4 flex items-center justify-center transition-opacity duration-300 ${
+        isHidden ? "opacity-0 pointer-events-none invisible" : "opacity-100"
+      }`}
+    >
       <div 
         className="absolute w-48 h-48 rounded-full pointer-events-none"
         style={{

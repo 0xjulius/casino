@@ -31,6 +31,7 @@ interface OutcomeState {
 
 interface GyreRouletteProps {
   onZeroWin?: () => void;
+  onModalToggle?: (isOpen: boolean) => void;
 }
 
 const SLOT_COUNT = 15;
@@ -148,7 +149,10 @@ function fmt(n: number): string {
   return "$" + n.toFixed(2);
 }
 
-export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
+export default function GyreRoulette({
+  onZeroWin,
+  onModalToggle,
+}: GyreRouletteProps) {
   const [balance, setBalance] = useState<number>(2000.0);
   const [isRulesOpen, setIsRulesOpen] = useState<boolean>(false);
   const [isWalletOpen, setIsWalletOpen] = useState<boolean>(false);
@@ -167,7 +171,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
   const [secondsLeft, setSecondsLeft] = useState<number>(11);
   const [spinning, setSpinning] = useState<boolean>(false);
   const [resultText, setResultText] = useState<string>("");
-  const [betAmount, setBetAmount] = useState<string>("1.00");
+  const [betAmount, setBetAmount] = useState<string>("0.00");
 
   const [outcomes, setOutcomes] = useState<OutcomeState[]>([]);
 
@@ -188,6 +192,11 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
 
   const rollingAudioRef = useRef<HTMLAudioElement | null>(null);
   const doneAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Ilmoitetaan yläkomponentille aina, kun modalin aukiolotila muuttuu
+  useEffect(() => {
+    onModalToggle?.(isRulesOpen || isWalletOpen);
+  }, [isRulesOpen, isWalletOpen, onModalToggle]);
 
   useEffect(() => {
     const rolling = new Audio("/sounds/rolling.wav");
@@ -684,8 +693,8 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
           </div>
         </div>
 
-       {/* Wager Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-8">
+        {/* Wager Cards */}
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-8">
           {/* 1. RED CARD (1–7) */}
           {(() => {
             const outcome = outcomes.find((o) => o.color === "red");
@@ -715,7 +724,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     <div className="text-red-500 font-bold text-xs tracking-wider uppercase">
                       Red (1–7)
                     </div>
-                    <div className="text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                    <div className="text-2xl sm:text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
                       {PAYOUT.red.toFixed(2)}
                       <span className="text-2xl font-normal text-[#d4af37]">
                         ×
@@ -723,9 +732,8 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     </div>
                   </div>
 
-                  {/* FIXED: Light background container with matching border & dark text */}
                   <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
-                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold">
+                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold hidden sm:inline">
                       BET
                     </span>
                     <div className="flex items-center gap-2">
@@ -788,7 +796,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     <div className="text-emerald-500 font-bold text-xs tracking-wider uppercase">
                       Green (0)
                     </div>
-                    <div className="text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                    <div className="text-2xl sm:text-4xl  font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
                       {PAYOUT.green.toFixed(2)}
                       <span className="text-2xl font-normal text-[#d4af37]">
                         ×
@@ -797,7 +805,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                   </div>
 
                   <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
-                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold">
+                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold hidden sm:inline">
                       BET
                     </span>
                     <div className="flex items-center gap-2">
@@ -860,7 +868,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     <div className="text-stone-500 font-bold text-xs tracking-wider uppercase">
                       Black (8–14)
                     </div>
-                    <div className="text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                    <div className="text-2xl sm:text-4xl  font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
                       {PAYOUT.black.toFixed(2)}
                       <span className="text-2xl font-normal text-[#d4af37]">
                         ×
@@ -868,9 +876,8 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     </div>
                   </div>
 
-                  {/* FIXED: Light background container with matching border & dark text */}
                   <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
-                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold">
+                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold hidden sm:inline">
                       BET
                     </span>
                     <div className="flex items-center gap-2">

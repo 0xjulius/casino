@@ -10,6 +10,7 @@ function App() {
   const [mounted, setMounted] = useState(false);
   const [isDarkFlash, setIsDarkFlash] = useState(false);
   const [showLightning, setShowLightning] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -57,7 +58,7 @@ function App() {
 
       <GoldDust />
 
-      {/* 3D-PÄÄ (z-30 pitää sen pääkortin z-20 yläpuolella) */}
+      {/* 3D-PÄÄ (Piilotetaan isHidden-propilla kun modal on auki) */}
       {mounted && (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
@@ -65,13 +66,16 @@ function App() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="absolute top-0 left-0 w-full z-30 pointer-events-none"
         >
-          <CoinCanvas />
+          <CoinCanvas isHidden={isModalOpen} />
         </motion.div>
       )}
 
       {/* PÄÄSISÄLTÖ (z-20) */}
       <main className="w-full z-20 px-2 sm:px-4 pt-12 sm:pt-0">
-        <GyreRoulette onZeroWin={triggerDarkFlash} />
+        <GyreRoulette 
+          onZeroWin={triggerDarkFlash} 
+          onModalToggle={(isOpen) => setIsModalOpen(isOpen)} 
+        />
       </main>
     </div>
   );
