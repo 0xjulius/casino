@@ -644,12 +644,20 @@ export default function GyreRoulette({
         </div>
 
         {/* Bet Amount Control Bar */}
-        <div className="rounded-2xl p-2.5 sm:p-3 mb-6 flex flex-wrap items-center gap-3 border border-[#E5DAC8] bg-[#F4EFE6]">
-          <div className="text-xs font-semibold px-2 text-[#8C827A]">
-            Bet Amount
+        <div className="rounded-2xl p-2.5 sm:p-3 mb-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 border border-[#E5DAC8] bg-[#F4EFE6]">
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-xs font-semibold px-1 text-[#8C827A]">
+              Bet Amount
+            </div>
+            <button
+              onClick={clearBet}
+              className="text-xs font-semibold text-[#8C827A] hover:text-[#2D2621] px-2 py-1 rounded-lg hover:bg-[#E2D6C3]/40 transition-colors sm:hidden"
+            >
+              Clear
+            </button>
           </div>
 
-          <div className="flex items-center flex-1 min-w-[160px] rounded-xl px-3 bg-[#FAF6F0] border border-[#E2D6C3] shadow-inner justify-between">
+          <div className="flex items-center flex-1 rounded-xl px-3 bg-[#FAF6F0] border border-[#E2D6C3] shadow-inner justify-between">
             <div className="flex items-center flex-1 mr-2">
               <span className="text-sm font-semibold mr-1 text-[#8C827A]">
                 $
@@ -666,13 +674,14 @@ export default function GyreRoulette({
 
             <button
               onClick={clearBet}
-              className="text-xs font-semibold text-[#8C827A] hover:text-[#2D2621] px-2 py-1 rounded-lg hover:bg-[#E2D6C3]/40 transition-colors"
+              className="text-xs font-semibold text-[#8C827A] hover:text-[#2D2621] px-2 py-1 rounded-lg hover:bg-[#E2D6C3]/40 transition-colors hidden sm:block"
             >
               Clear
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-1.5">
+          {/* Pienellä ruudulla 4 sarakkeen tasainen ruudukko, suuremmalla joustava rivi */}
+          <div className="grid grid-cols-4 sm:flex sm:flex-wrap gap-1.5">
             {[
               { label: "+1", action: () => addBet(1) },
               { label: "+5", action: () => addBet(5) },
@@ -684,7 +693,9 @@ export default function GyreRoulette({
             ].map((btn) => (
               <button
                 key={btn.label}
-                className="gyre-btn px-2.5 py-2 rounded-xl text-xs font-bold border transition-all active:scale-95 shadow-sm"
+                className={`gyre-btn px-2 py-2 sm:px-2.5 rounded-xl text-xs font-bold border transition-all active:scale-95 shadow-sm text-center ${
+                  btn.label === "MAX" ? "col-span-2 sm:col-span-1" : ""
+                }`}
                 onClick={btn.action}
               >
                 {btn.label}
@@ -709,7 +720,7 @@ export default function GyreRoulette({
             return (
               <div
                 style={{ backgroundImage: `url(${cardBg})` }}
-                className={`relative overflow-hidden w-full rounded-2xl p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-2xl flex flex-col justify-between ${
+                className={`relative overflow-hidden w-full rounded-xl sm:rounded-2xl p-2 sm:p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-xl flex flex-col justify-between ${
                   flash.panel === "red"
                     ? flash.kind === "win"
                       ? "flash-win"
@@ -719,46 +730,41 @@ export default function GyreRoulette({
               >
                 <div className="absolute inset-0 bg-gradient-to-b from-red-400/10 via-white/40 to-red-500/30 pointer-events-none" />
 
-                <div className="relative z-10 space-y-5">
+                <div className="relative z-10 flex flex-col h-full justify-between space-y-2 sm:space-y-4">
                   <div>
-                    <div className="text-red-500 font-bold text-xs tracking-wider uppercase">
+                    <div className="text-red-500 font-bold text-[9px] sm:text-xs tracking-wider uppercase truncate">
                       Red (1–7)
                     </div>
-                    <div className="text-2xl sm:text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                    <div className="text-xl sm:text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight">
                       {PAYOUT.red.toFixed(2)}
-                      <span className="text-2xl font-normal text-[#d4af37]">
+                      <span className="text-sm sm:text-2xl font-normal text-[#d4af37]">
                         ×
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
-                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold hidden sm:inline">
-                      BET
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {isWinner && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
-                          +{fmt(outcome.amount)}
-                        </span>
-                      )}
-                      {isLoser && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-red-500/20 text-red-700 border border-red-500/30">
-                          -{fmt(outcome.amount)}
-                        </span>
-                      )}
-                      {!isWinner && !isLoser && (
-                        <span className="text-[#2D2621] font-bold">
-                          {fmt(wagers.red || 0)}
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center justify-center px-1 sm:px-4 py-1 sm:py-3 rounded-lg sm:rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-xs sm:text-base shadow-inner min-h-[32px] sm:min-h-[48px]">
+                    {isWinner && (
+                      <span className="text-[10px] sm:text-xs font-bold px-1 py-0.5 rounded animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
+                        +{fmt(outcome.amount)}
+                      </span>
+                    )}
+                    {isLoser && (
+                      <span className="text-[10px] sm:text-xs font-bold px-1 py-0.5 rounded bg-red-500/20 text-red-700 border border-red-500/30">
+                        -{fmt(outcome.amount)}
+                      </span>
+                    )}
+                    {!isWinner && !isLoser && (
+                      <span className="text-[#2D2621] font-bold text-[11px] sm:text-base truncate">
+                        {fmt(wagers.red || 0)}
+                      </span>
+                    )}
                   </div>
 
                   <button
                     disabled={spinning || validBetAmount <= 0}
                     onClick={() => placeBet("red")}
-                    className="w-full py-3.5 rounded-xl font-bold text-sm text-stone-100 bg-red-900/80 hover:bg-red-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full py-2 sm:py-3.5 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-sm text-stone-100 bg-red-900/80 hover:bg-red-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer leading-tight"
                   >
                     Bet Red
                   </button>
@@ -781,7 +787,7 @@ export default function GyreRoulette({
             return (
               <div
                 style={{ backgroundImage: `url(${cardBg})` }}
-                className={`relative overflow-hidden w-full rounded-2xl p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-2xl flex flex-col justify-between ${
+                className={`relative overflow-hidden w-full rounded-xl sm:rounded-2xl p-2 sm:p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-xl flex flex-col justify-between ${
                   flash.panel === "green"
                     ? flash.kind === "win"
                       ? "flash-win"
@@ -791,46 +797,41 @@ export default function GyreRoulette({
               >
                 <div className="absolute inset-0 bg-gradient-to-b from-emerald-400/10 via-white/40 to-emerald-500/30 pointer-events-none" />
 
-                <div className="relative z-10 space-y-5">
+                <div className="relative z-10 flex flex-col h-full justify-between space-y-2 sm:space-y-4">
                   <div>
-                    <div className="text-emerald-500 font-bold text-xs tracking-wider uppercase">
+                    <div className="text-emerald-500 font-bold text-[9px] sm:text-xs tracking-wider uppercase truncate">
                       Green (0)
                     </div>
-                    <div className="text-2xl sm:text-4xl  font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                    <div className="text-xl sm:text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight">
                       {PAYOUT.green.toFixed(2)}
-                      <span className="text-2xl font-normal text-[#d4af37]">
+                      <span className="text-sm sm:text-2xl font-normal text-[#d4af37]">
                         ×
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
-                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold hidden sm:inline">
-                      BET
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {isWinner && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
-                          +{fmt(outcome.amount)}
-                        </span>
-                      )}
-                      {isLoser && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-red-500/20 text-red-700 border border-red-500/30">
-                          -{fmt(outcome.amount)}
-                        </span>
-                      )}
-                      {!isWinner && !isLoser && (
-                        <span className="text-[#2D2621] font-bold">
-                          {fmt(wagers.green || 0)}
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center justify-center px-1 sm:px-4 py-1 sm:py-3 rounded-lg sm:rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-xs sm:text-base shadow-inner min-h-[32px] sm:min-h-[48px]">
+                    {isWinner && (
+                      <span className="text-[10px] sm:text-xs font-bold px-1 py-0.5 rounded animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
+                        +{fmt(outcome.amount)}
+                      </span>
+                    )}
+                    {isLoser && (
+                      <span className="text-[10px] sm:text-xs font-bold px-1 py-0.5 rounded bg-red-500/20 text-red-700 border border-red-500/30">
+                        -{fmt(outcome.amount)}
+                      </span>
+                    )}
+                    {!isWinner && !isLoser && (
+                      <span className="text-[#2D2621] font-bold text-[11px] sm:text-base truncate">
+                        {fmt(wagers.green || 0)}
+                      </span>
+                    )}
                   </div>
 
                   <button
                     disabled={spinning || validBetAmount <= 0}
                     onClick={() => placeBet("green")}
-                    className="w-full py-3.5 rounded-xl font-bold text-sm text-stone-100 bg-emerald-900/80 hover:bg-emerald-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full py-2 sm:py-3.5 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-sm text-stone-100 bg-emerald-900/80 hover:bg-emerald-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer leading-tight"
                   >
                     Bet Green
                   </button>
@@ -853,7 +854,7 @@ export default function GyreRoulette({
             return (
               <div
                 style={{ backgroundImage: `url(${cardBg})` }}
-                className={`relative overflow-hidden w-full rounded-2xl p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-2xl flex flex-col justify-between ${
+                className={`relative overflow-hidden w-full rounded-xl sm:rounded-2xl p-2 sm:p-5 bg-cover bg-center border border-[#d4af37]/40 shadow-xl flex flex-col justify-between ${
                   flash.panel === "black"
                     ? flash.kind === "win"
                       ? "flash-win"
@@ -863,46 +864,41 @@ export default function GyreRoulette({
               >
                 <div className="absolute inset-0 bg-gradient-to-b from-stone-400/10 via-white/20 to-black/30 pointer-events-none" />
 
-                <div className="relative z-10 space-y-5">
+                <div className="relative z-10 flex flex-col h-full justify-between space-y-2 sm:space-y-4">
                   <div>
-                    <div className="text-stone-500 font-bold text-xs tracking-wider uppercase">
+                    <div className="text-stone-500 font-bold text-[9px] sm:text-xs tracking-wider uppercase truncate">
                       Black (8–14)
                     </div>
-                    <div className="text-2xl sm:text-4xl  font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight mt-1">
+                    <div className="text-xl sm:text-4xl font-serif font-bold bg-gradient-to-b from-[#e6af26] via-[#ac7f0e] to-[#6d4c00] bg-clip-text text-transparent tracking-tight">
                       {PAYOUT.black.toFixed(2)}
-                      <span className="text-2xl font-normal text-[#d4af37]">
+                      <span className="text-sm sm:text-2xl font-normal text-[#d4af37]">
                         ×
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-base shadow-inner">
-                    <span className="text-[10px] font-sans text-stone-500 uppercase tracking-widest font-bold hidden sm:inline">
-                      BET
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {isWinner && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
-                          +{fmt(outcome.amount)}
-                        </span>
-                      )}
-                      {isLoser && (
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-red-500/20 text-red-700 border border-red-500/30">
-                          -{fmt(outcome.amount)}
-                        </span>
-                      )}
-                      {!isWinner && !isLoser && (
-                        <span className="text-[#2D2621] font-bold">
-                          {fmt(wagers.black || 0)}
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center justify-center px-1 sm:px-4 py-1 sm:py-3 rounded-lg sm:rounded-xl bg-white/80 border border-[#E2D6C3] text-[#2D2621] font-mono text-xs sm:text-base shadow-inner min-h-[32px] sm:min-h-[48px]">
+                    {isWinner && (
+                      <span className="text-[10px] sm:text-xs font-bold px-1 py-0.5 rounded animate-pulse bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
+                        +{fmt(outcome.amount)}
+                      </span>
+                    )}
+                    {isLoser && (
+                      <span className="text-[10px] sm:text-xs font-bold px-1 py-0.5 rounded bg-red-500/20 text-red-700 border border-red-500/30">
+                        -{fmt(outcome.amount)}
+                      </span>
+                    )}
+                    {!isWinner && !isLoser && (
+                      <span className="text-[#2D2621] font-bold text-[11px] sm:text-base truncate">
+                        {fmt(wagers.black || 0)}
+                      </span>
+                    )}
                   </div>
 
                   <button
                     disabled={spinning || validBetAmount <= 0}
                     onClick={() => placeBet("black")}
-                    className="w-full py-3.5 rounded-xl font-bold text-sm text-stone-100 bg-stone-900/80 hover:bg-stone-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full py-2 sm:py-3.5 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-sm text-stone-100 bg-stone-900/80 hover:bg-stone-800/90 active:scale-[0.98] transition-all shadow-lg border border-[#f3e5ab]/30 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer leading-tight"
                   >
                     Bet Black
                   </button>
@@ -911,7 +907,7 @@ export default function GyreRoulette({
             );
           })()}
         </div>
-
+        
         {/* Footer Feature Badges */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[#E5DAC8] text-xs">
           <div className="flex items-center gap-2">
