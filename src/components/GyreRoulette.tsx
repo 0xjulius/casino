@@ -202,7 +202,7 @@ export default function GyreRoulette({
     const rolling = new Audio("/sounds/rolling.wav");
     const done = new Audio("/sounds/done.wav");
 
-    rolling.volume = 0.5;
+    rolling.volume = 0.4;
 
     rolling.preload = "auto";
     done.preload = "auto";
