@@ -3,14 +3,36 @@ import { motion } from "framer-motion";
 import GyreRoulette from "./components/GyreRoulette";
 import CoinCanvas from "./components/CoinCanvas";
 import GoldDust from "./components/GoldDust";
+import LightningCanvas from "./components/LightningCanvas";
 import bgImage from "./assets/bg2.png";
 
 function App() {
   const [mounted, setMounted] = useState(false);
+  const [isDarkFlash, setIsDarkFlash] = useState(false);
+  const [showLightning, setShowLightning] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const triggerDarkFlash = () => {
+    // Soitetaan ääni public/sounds/0.wav -kansiosta
+    const audio = new Audio("/sounds/0.wav");
+    audio.play().catch((err) => console.error("Audio playback error:", err));
+
+    setIsDarkFlash(true);
+    setShowLightning(true);
+
+    // Salama kestävä animaatio n. 0.6s
+    setTimeout(() => {
+      setShowLightning(false);
+    }, 600);
+
+    // Tummennus kestää 1.2s
+    setTimeout(() => {
+      setIsDarkFlash(false);
+    }, 1200);
+  };
 
   return (
     <div
@@ -23,27 +45,31 @@ function App() {
         backgroundAttachment: "fixed",
       }}
     >
-      {/* OMA PUHDAS CANVAS-KULTAPÖLY */}
+      {/* Tummentava kerros */}
+      <div
+        className={`fixed inset-0 bg-black/80 transition-opacity duration-300 pointer-events-none z-10 ${
+          isDarkFlash ? "opacity-100" : "opacity-0"
+        }`}
+      />
+
+      {/* CANVAKSELLA TOTEUTETTU AITO SALAMA */}
+      {showLightning && <LightningCanvas />}
+
       <GoldDust />
 
-      {/* Kolikon Fade-in */}
       {mounted && (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.6,
-            ease: "easeOut",
-          }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="absolute top-0 left-0 w-full z-50 pointer-events-none"
         >
           <CoinCanvas />
         </motion.div>
       )}
 
-      {/* Pelikortti */}
       <main className="w-full z-20 px-2 sm:px-4 pt-12 sm:pt-0">
-        <GyreRoulette />
+        <GyreRoulette onZeroWin={triggerDarkFlash} />
       </main>
     </div>
   );
