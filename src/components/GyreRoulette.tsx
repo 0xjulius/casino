@@ -877,7 +877,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </div>
           </button>
 
-          {/* 3. Fair Play */}
+          {/* 3. Provably Random */}
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800">
               <svg
@@ -896,9 +896,9 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
               </svg>
             </div>
             <div>
-              <div className="font-bold text-stone-800">Fair Play</div>
+              <div className="font-bold text-stone-800">Provably Random</div>
               <div className="text-[10px] text-stone-500">
-                Provably fair results
+                Unbiased CSPRNG Engine
               </div>
             </div>
           </div>
