@@ -19,17 +19,14 @@ function GlobalMouseRig({ children }: { children: React.ReactNode }) {
       mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
     };
 
-    // Attach listener to window so it captures mouse movement over ALL elements
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   useFrame((state, delta) => {
-    // Target rotation based on global window mouse position
     const targetY = (mouse.current.x * Math.PI) / 4; 
     const targetX = (-mouse.current.y * Math.PI) / 5;
 
-    // Smooth lerp transition (adjust the multiplier '4' for faster/slower response)
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetX, delta * 4);
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetY, delta * 4);
 
@@ -43,7 +40,6 @@ function GlobalMouseRig({ children }: { children: React.ReactNode }) {
 export default function CoinCanvas() {
   return (
     <div className="w-full h-[180px] sm:h-[220px] relative pointer-events-none pb-4 flex items-center justify-center">
-      {/* Pehmeä CSS-taustaglow pään takana */}
       <div 
         className="absolute w-48 h-48 rounded-full pointer-events-none"
         style={{
