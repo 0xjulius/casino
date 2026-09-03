@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import "../App.css";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 
 type Color = "red" | "green" | "black";
 
@@ -55,6 +55,30 @@ const TILE_GAP = 10;
 const FULL_TILE_SPAN = TILE_WIDTH + TILE_GAP;
 
 const BASE_SEQUENCE = [1, 8, 2, 9, 3, 10, 4, 0, 11, 5, 12, 6, 13, 7, 14];
+
+function AnimatedBalance({ value }: { value: number }) {
+  const count = useMotionValue(value);
+  const [displayValue, setDisplayValue] = useState("$" + value.toFixed(2));
+
+  useEffect(() => {
+    const controls = animate(count, value, {
+      duration: 0.8,
+      ease: "easeOut",
+      onUpdate: (latest) => {
+        setDisplayValue("$" + latest.toFixed(2));
+      },
+    });
+
+    return () => controls.stop();
+  }, [value, count]);
+
+  return <span>{displayValue}</span>;
+}
+
+const playBetSound = () => {
+  const audio = new Audio("/sounds/bet.wav");
+  audio.play().catch((err) => console.error("Audio playback error:", err));
+};
 
 function colorOf(n: number): Color {
   if (n === 0) return "green";
@@ -233,6 +257,8 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
       return;
     }
 
+    playBetSound();
+
     setBalance((b) => b - amount);
 
     setWagers((prev) => {
@@ -382,7 +408,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
       });
     }, 1000);
 
-    return () => window.clearTimeout(id);
+    return () => window.clearInterval(id);
   }, []);
 
   useEffect(() => {
@@ -485,7 +511,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                 Balance
               </div>
               <div className="text-xl sm:text-2xl font-bold font-mono text-[#2D2621]">
-                {fmt(balance)}
+                <AnimatedBalance value={balance} />
               </div>
             </div>
             <div className="w-9 h-9 rounded-xl bg-[#FAF6F0] flex items-center justify-center border border-[#E2D6C3] shadow-sm text-amber-700">
@@ -745,9 +771,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                   >
                     <span className="uppercase text-[9px] sm:text-[10px] font-bold tracking-wider text-[#8C827A] hidden sm:inline">
                       Total Wager
-                    </span>
-                    <span className="uppercase text-[9px] font-bold tracking-wider text-[#8C827A] sm:hidden">
-                      Wager
                     </span>
 
                     <div className="flex items-center gap-1 sm:gap-2">
