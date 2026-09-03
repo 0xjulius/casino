@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import RulesModal from "./RulesModal";
+import DemoWalletModal from "./DemoWalletModal";
 import "../App.css";
 import {
   motion,
@@ -159,6 +161,8 @@ function fmt(n: number): string {
 
 export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
   const [balance, setBalance] = useState<number>(2000.0);
+  const [isRulesOpen, setIsRulesOpen] = useState<boolean>(false);
+  const [isWalletOpen, setIsWalletOpen] = useState<boolean>(false);
 
   const [wagers, setWagers] = useState<Wagers>({
     red: 0,
@@ -510,7 +514,12 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 bg-[#F0E8DC] px-4 py-2.5 rounded-2xl border border-[#E2D6C3] shadow-inner">
+          {/* Klikattava Demo Balance -painike */}
+          <button
+            type="button"
+            onClick={() => setIsWalletOpen(true)}
+            className="group flex items-center gap-3 bg-[#F0E8DC] hover:bg-[#EAE0D0] px-4 py-2.5 rounded-2xl border border-[#E2D6C3] shadow-inner transition-colors cursor-pointer active:scale-[0.98]"
+          >
             <div>
               <div className="text-[10px] uppercase font-semibold tracking-wider text-right text-[#8C827A]">
                 Balance
@@ -519,7 +528,9 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                 <AnimatedBalance value={balance} />
               </div>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-[#FAF6F0] flex items-center justify-center border border-[#E2D6C3] shadow-sm text-amber-700">
+
+            {/* Lompakkoikoni */}
+            <div className="w-9 h-9 rounded-xl bg-[#FAF6F0] flex items-center justify-center border border-[#E2D6C3] shadow-sm text-amber-700 group-hover:scale-105 transition-transform pointer-events-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -535,7 +546,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                 <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-3" />
               </svg>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* History Strip */}
@@ -678,7 +689,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             Bet Amount
           </div>
 
-          {/* Syötekenttä + Clear-nappi samassa boksissa */}
           <div className="flex items-center flex-1 min-w-[160px] rounded-xl px-3 bg-[#FAF6F0] border border-[#E2D6C3] shadow-inner justify-between">
             <div className="flex items-center flex-1 mr-2">
               <span className="text-sm font-semibold mr-1 text-[#8C827A]">
@@ -694,7 +704,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
               />
             </div>
 
-            {/* Clear-painike boksin sisällä oikeassa reunassa */}
             <button
               onClick={clearBet}
               className="text-xs font-semibold text-[#8C827A] hover:text-[#2D2621] px-2 py-1 rounded-lg hover:bg-[#E2D6C3]/40 transition-colors"
@@ -703,7 +712,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </button>
           </div>
 
-          {/* Pikanapit ilman Clear-nappia */}
           <div className="flex flex-wrap gap-1.5">
             {[
               { label: "+1", action: () => addBet(1) },
@@ -725,7 +733,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
           </div>
         </div>
 
-        {/* Wager Panels (Always 3 columns, fully responsive) */}
+        {/* Wager Panels */}
         <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-8">
           {betOptions.map((p) => {
             const currentWager = wagers[p.key];
@@ -770,7 +778,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                 </div>
 
                 <div className="mt-2 sm:mt-4">
-                  {/* Total Wager Display Box */}
                   <div
                     className={`rounded-lg sm:rounded-xl px-1.5 py-1 sm:px-3.5 sm:py-2.5 mb-2 sm:mb-3 flex items-center justify-between border bg-white/80 shadow-inner ${p.borderColor}`}
                   >
@@ -799,7 +806,6 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                     </div>
                   </div>
 
-                  {/* Main Action Button */}
                   <button
                     className={`w-full py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-xs font-bold text-white transition-all duration-200 active:scale-95 flex items-center justify-center capitalize disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer hover:brightness-110 ${p.btnGradient} ${p.btnHoverGlow}`}
                     disabled={spinning || validBetAmount <= 0}
@@ -815,6 +821,7 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
 
         {/* Footer Feature Badges */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[#E5DAC8] text-xs">
+          {/* 1. Slots */}
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800">
               <svg
@@ -838,8 +845,12 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800">
+          {/* 2. Legal Notice Button */}
+          <button
+            onClick={() => setIsWalletOpen(true)}
+            className="flex items-center gap-2 text-left p-2 rounded-xl hover:bg-[#EFE8DC]/60 transition-colors group cursor-pointer"
+          >
+            <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800 group-hover:bg-amber-100 transition-colors">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -851,20 +862,22 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <circle cx="8" cy="8" r="6" />
-                <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
-                <path d="M7 6h1v4" />
-                <path d="m16.71 13.88.7.71-2.82 2.82" />
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <path d="M12 8v4" />
+                <path d="M12 16h.01" />
               </svg>
             </div>
             <div>
-              <div className="font-bold text-stone-800">Payouts</div>
+              <div className="font-bold text-stone-800 group-hover:text-amber-800 transition-colors">
+                Disclaimer
+              </div>
               <div className="text-[10px] text-stone-500">
-                Red 2x, Green 14x, Black 2x
+                For Entertainment Only
               </div>
             </div>
-          </div>
+          </button>
 
+          {/* 3. Fair Play */}
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800">
               <svg
@@ -890,8 +903,12 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800">
+          {/* 4. How It Works */}
+          <button
+            onClick={() => setIsRulesOpen(true)}
+            className="flex items-center gap-2 text-left p-2 rounded-xl hover:bg-[#EFE8DC]/60 transition-colors group cursor-pointer"
+          >
+            <div className="p-2 rounded-lg bg-[#EFE8DC] text-amber-800 group-hover:bg-amber-100 transition-colors">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -909,17 +926,26 @@ export default function GyreRoulette({ onZeroWin }: GyreRouletteProps) {
               </svg>
             </div>
             <div>
-              <div className="font-bold text-stone-800">How It Works</div>
+              <div className="font-bold text-stone-800 group-hover:text-amber-800 transition-colors">
+                How It Works
+              </div>
               <div className="text-[10px] text-stone-500">Learn the rules</div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
       <p className="text-[11px] mt-4 text-center text-stone-500">
-        Each spin lands on 0–14. Zero pays green, 1–7 pay red, and 8–14 pay
-        black. Simulated currency only — nothing here is real money.
+        Gyre is a simulated entertainment application using non-monetary demo
+        credits. No real money gambling or rewards are offered.
       </p>
+
+      {/* Modals */}
+      <RulesModal isOpen={isRulesOpen} onClose={() => setIsRulesOpen(false)} />
+      <DemoWalletModal
+        isOpen={isWalletOpen}
+        onClose={() => setIsWalletOpen(false)}
+      />
     </div>
   );
 }
