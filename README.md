@@ -1,32 +1,33 @@
-# React + TypeScript + Vite
+# Gyre Roulette 🎡
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+> **Disclaimer:** Gyre Roulette is an interactive, play-for-fun browser game. It is built strictly for entertainment purposes using demo credits. No real money is involved.
 
-Currently, two official plugins are available:
+![screenshot](src/assets/project23.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Gyre Roulette is a modern, interactive 15-slot browser roulette game. It features a provably fair randomness engine, precisely synchronized audio-visual animations, and a fully responsive user interface.
 
-## React Compiler
+## 🎮 Case Study
+[juliusaalto.com](https://juliusaalto.com/projects/gyre-roulette)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the Oxlint configuration
+* 🎲 **Provably Fair Randomness:** Uses the browser's native Web Crypto API (`crypto.getRandomValues()`) and a CSPRNG engine to ensure unbiased and completely random outcomes.
+* 🎨 **Modern & Responsive UI:** Built with Tailwind CSS, ensuring a seamless experience across both desktop and mobile devices.
+* 🔊 **Synchronized Audio-Visuals:** Custom `cubic-bezier` CSS animations perfectly timed with React `useEffect` audio triggers for an immersive spinning experience.
+* ⚡ **Performance Optimized:** Uses React state and `useRef` efficiently to prevent unnecessary re-renders during the animation phases.
+* 🪙 **Interactive Micro-interactions:** Powered by Framer Motion for smooth modal popups, rolling balance numbers, and 3D floating coin elements.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## 🛠️ Tech Stack
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+* **Framework:** [React 18](https://react.dev/)
+* **Build Tool:** [Vite](https://vitejs.dev/)
+* **Language:** [TypeScript](https://www.typescriptlang.org/)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+* **Animations:** [Framer Motion](https://www.framer.com/motion/)
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## 🎮 How to Play
+* Place your bets: Choose your bet size and place it on Red (2x), Black (2x), or Green (14x).
+* Wait for the timer: The game rolls automatically when the 15-second timer hits zero.
+* Watch the spin: The wheel spins and lands on a provably fair random number.
+* Collect winnings: If the wheel lands on your chosen color, your demo balance increases!
+* PS. There is a special animation, if users are hitting green ;).
